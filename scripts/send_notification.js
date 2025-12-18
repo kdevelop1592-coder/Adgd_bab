@@ -83,12 +83,14 @@ async function sendNotifications(mealMenu) {
 
     // 3. Get all user tokens from Firestore
     const usersSnapshot = await db.collection('users').get();
-    const tokens = [];
+    const tokenSet = new Set();
     usersSnapshot.forEach(doc => {
         if (doc.data().token) {
-            tokens.push(doc.data().token);
+            tokenSet.add(doc.data().token);
         }
     });
+
+    const tokens = Array.from(tokenSet);
 
     if (tokens.length === 0) {
         console.log('No users to notify.');

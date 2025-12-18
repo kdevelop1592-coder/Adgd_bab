@@ -20,12 +20,14 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(function (payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
+  // If the push has a notification object, the browser might show it automatically.
+  // We only call showNotification manually if we want to customize it or if it's data-only.
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
     icon: 'icons/icon-192.png',
     data: {
-      url: self.registration.scope // Open the root of the app
+      url: self.registration.scope
     }
   };
 

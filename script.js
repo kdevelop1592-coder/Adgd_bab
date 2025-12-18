@@ -53,7 +53,7 @@ let currentDay = new Date();
 // Foreground notification handler
 onMessage(messaging, (payload) => {
     console.log('Message received in foreground:', payload);
-    alert(`[알림 확인] ${payload.notification.title}\n\n${payload.notification.body}`);
+    // Removed alert to prevent double notification confusion (alert + system notification)
 });
 
 // VAPID Key ...
