@@ -110,7 +110,7 @@ async function sendNotifications(mealMenu) {
     };
 
     try {
-        const response = await messaging.sendMulticast(message);
+        const response = await messaging.sendEachForMulticast(message);
         console.log(`${response.successCount} messages were sent successfully.`);
         if (response.failureCount > 0) {
             const failedTokens = [];
