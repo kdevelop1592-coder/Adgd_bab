@@ -198,11 +198,21 @@ prevMonthBtn.onclick = () => {
 
 nextMonthBtn.onclick = async () => {
     const nextDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
-    const dateStr = formatDate(nextDate);
 
-    // Check if next month has data
-    const menu = await fetchMeal(dateStr);
-    if (!menu && nextDate > new Date()) {
+    // Check if next month has data (check first 7 days to account for holidays/weekends)
+    let hasData = false;
+    for (let i = 0; i < 7; i++) {
+        const checkDate = new Date(nextDate);
+        checkDate.setDate(nextDate.getDate() + i);
+        const dateStr = formatDate(checkDate);
+        const menu = await fetchMeal(dateStr);
+        if (menu) {
+            hasData = true;
+            break;
+        }
+    }
+
+    if (!hasData && nextDate > new Date()) {
         alert("아직 다음 달 급식 정보가 없습니다. 🏖️");
         return;
     }
