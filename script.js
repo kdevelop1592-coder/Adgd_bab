@@ -17,7 +17,7 @@ const firebaseConfig = {
 // --- School Configuration ---
 const NEIS_API_KEY = 'f94bd02dd9df439e9c1f4b136dc9df26';
 const ATPT_OFCDC_SC_CODE = 'R10';
-const SD_SCHUL_CODE = '8750186';
+const SD_SCHUL_CODE = '8750510'; // 안동중앙고교 교체 8750510
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
