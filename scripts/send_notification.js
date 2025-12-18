@@ -104,11 +104,19 @@ async function sendNotifications(mealMenu) {
     // If > 500, user needs to chunk the array. (Assuming < 500 for this demo)
 
     const message = {
+        notification: {
+            title: '오늘의 급식 🍚',
+            body: mealMenu,
+        },
         data: {
             title: '오늘의 급식 🍚',
             body: mealMenu,
         },
         webpush: {
+            notification: {
+                tag: 'daily-meal-notification',
+                renotify: true,
+            },
             fcmOptions: {
                 link: 'https://kdevelop1592-coder.github.io/Adgd_bab/'
             }
