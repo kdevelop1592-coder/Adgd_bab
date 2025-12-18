@@ -217,6 +217,7 @@ window.onclick = (event) => {
 
 // Initial Load
 loadTodayMeal();
+loadMonthlyMeal();
 
 
 // --- Notification Logic ---
