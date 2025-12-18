@@ -1,5 +1,14 @@
 {
+  "name": "today-meal-pwa",
+  "version": "1.0.0",
+  "description": "School Meal Notification PWA",
+  "main": "index.js",
+  "scripts": {
+    "send-notification": "node scripts/send_notification.js"
+  },
   "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
+    "firebase-admin": "^11.5.0",
+    "node-fetch": "^3.3.0"
+  },
+  "type": "module"
 }

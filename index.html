@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>급식 조회 시스템</title>
+    <title>오늘의 급식 알리미</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4CAF50">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,99 +13,42 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1><i class="fas fa-utensils"></i> 급식 조회 시스템</h1>
-            <p>학교 급식 정보를 쉽게 확인하세요</p>
+            <h1><i class="fas fa-utensils"></i> 오늘의 급식</h1>
+            <p>매일 아침 7:30, 따뜻한 급식 소식을 전해드려요.</p>
         </header>
 
         <main class="main-content">
-            <div class="search-section">
-                <div class="search-form">
-                    <div class="form-group">
-                        <label for="school-search">학교 검색:</label>
-                        <div class="search-input-group">
-                            <input type="text" id="school-search" placeholder="학교명을 입력하세요" autocomplete="off">
-                            <button type="button" id="search-btn" class="search-btn">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="school-results" id="school-results" style="display: none;">
-                        <!-- 검색 결과가 여기에 표시됩니다 -->
-                    </div>
-
-                    <div class="selected-school" id="selected-school" style="display: none;">
-                        <h3>선택된 학교</h3>
-                        <div class="school-info">
-                            <span id="selected-school-name"></span>
-                            <button type="button" id="change-school-btn" class="change-btn">
-                                <i class="fas fa-edit"></i> 변경
-                            </button>
-                        </div>
-                    </div>
+            <div class="card notification-card" id="notification-section">
+                <div class="icon-wrapper">
+                    <img src="/icons/icon-192.png" alt="App Icon" class="app-icon-display">
                 </div>
-
-                <div class="date-section" id="date-section" style="display: none;">
-                    <div class="form-group">
-                        <label for="meal-date">날짜 선택:</label>
-                        <input type="date" id="meal-date">
-                    </div>
-                    
-                    <div class="meal-type-section">
-                        <label>식사 종류:</label>
-                        <div class="meal-buttons">
-                            <button type="button" class="meal-btn active" data-meal="1">
-                                <i class="fas fa-sun"></i> 아침
-                            </button>
-                            <button type="button" class="meal-btn" data-meal="2">
-                                <i class="fas fa-cloud-sun"></i> 점심
-                            </button>
-                            <button type="button" class="meal-btn" data-meal="3">
-                                <i class="fas fa-moon"></i> 저녁
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="button" id="get-meal-btn" class="get-meal-btn">
-                        <i class="fas fa-search"></i> 급식 조회
-                    </button>
-                </div>
+                <h2>급식 알림 받기</h2>
+                <p>매일 아침 오늘의 급식 메뉴를 푸시 알림으로 받아보세요.</p>
+                <button id="enable-notifications" class="primary-btn">
+                    <i class="fas fa-bell"></i> 알림 켜기
+                </button>
+                <p id="status-message" class="status-message"></p>
             </div>
 
-            <div class="meal-display" id="meal-display" style="display: none;">
-                <div class="meal-header">
-                    <h2 id="meal-title"></h2>
-                    <div class="meal-date-info" id="meal-date-info"></div>
-                </div>
-                
-                <div class="loading" id="loading" style="display: none;">
-                    <div class="spinner"></div>
-                    <p>급식 정보를 불러오는 중...</p>
-                </div>
-
-                <div class="meal-content" id="meal-content">
-                    <!-- 급식 정보가 여기에 표시됩니다 -->
-                </div>
-
-                <div class="meal-nutrition" id="meal-nutrition" style="display: none;">
-                    <h3>영양 정보</h3>
-                    <div class="nutrition-info" id="nutrition-info">
-                        <!-- 영양 정보가 여기에 표시됩니다 -->
-                    </div>
-                </div>
+            <div class="card install-card" id="install-section" style="display: none;">
+                <h2>앱 설치하기</h2>
+                <p>홈 화면에 추가하여 앱처럼 사용해보세요.</p>
+                <button id="install-btn" class="secondary-btn">
+                    <i class="fas fa-download"></i> 홈 화면에 추가
+                </button>
             </div>
 
-            <div class="error-message" id="error-message" style="display: none;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="error-text"></span>
+             <div class="meal-display" id="todays-meal">
+                <!-- 오늘의 급식 정보가 여기에 표시될 수 있습니다 (선택사항) -->
             </div>
         </main>
 
         <footer class="footer">
-            <p>&copy; 2024 급식 조회 시스템. 한국교육개발원 API를 활용하여 제작되었습니다.</p>
+            <p>&copy; 2024 오늘의 급식 알리미</p>
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Firebase SDKs -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>
