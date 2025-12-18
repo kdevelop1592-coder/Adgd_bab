@@ -38,13 +38,17 @@ async function requestPermissionAndSaveToken() {
 
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
+            updateStatus('권한 허용됨. 토큰 발급 중...', 'loading');
+
             // Get the service worker registration
             const registration = await navigator.serviceWorker.getRegistration();
             const token = await getToken(messaging, {
                 vapidKey: VAPID_KEY,
                 serviceWorkerRegistration: registration
             });
+
             if (token) {
+                updateStatus('토큰 발급 완료. 서버에 저장 중...', 'loading');
                 await saveTokenToFirestore(token);
                 updateStatus('알림 설정이 완료되었습니다! 내일 아침부터 급식 소식을 전해드릴게요.', 'success');
                 notificationBtn.innerHTML = '<i class="fas fa-check"></i> 알림 설정 완료';
