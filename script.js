@@ -291,6 +291,23 @@ notificationBtn.addEventListener('click', requestPermissionAndSaveToken);
 
 // --- PWA Install Logic ---
 let deferredPrompt;
+
+// Check for iOS
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+if (isIOS && !isStandalone) {
+    // Show iOS manual install instructions
+    installSection.style.display = 'block';
+    installSection.innerHTML = `
+        <h3>앱 설치</h3>
+        <p style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 15px;">
+            아이폰에서는 하단의 <strong>공유 버튼 <i class="fas fa-external-link-alt"></i></strong>을 누르고<br>
+            <strong>'홈 화면에 추가'</strong>를 선택하여 설치해 주세요!
+        </p>
+    `;
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
