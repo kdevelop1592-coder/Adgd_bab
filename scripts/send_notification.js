@@ -33,13 +33,12 @@ if (!serviceAccount) {
     process.exit(1);
 }
 
-initializeApp({
+const app = initializeApp({
     credential: cert(serviceAccount)
 });
 
-
-const db = getFirestore();
-const messaging = getMessaging();
+const db = getFirestore(app, 'adgd-bab');
+const messaging = getMessaging(app);
 
 console.log('Service Account Project ID:', serviceAccount.project_id);
 // 2. Configuration
