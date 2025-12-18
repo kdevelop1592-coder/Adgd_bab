@@ -17,7 +17,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
-const db = getFirestore(app, "adgd-bab");
+const db = getFirestore(app);
 
 // VAPID Key (Web Push Certificate) setup required in Firebase Console -> Cloud Messaging
 // TODO: Replace with your generate VAPID Key
