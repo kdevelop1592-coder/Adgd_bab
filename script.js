@@ -45,10 +45,25 @@ const modalMealInfoEl = document.getElementById('modal-meal-info');
 const prevDayBtn = document.getElementById('prev-day');
 const nextDayBtn = document.getElementById('next-day');
 
-// Current viewed date in monthly view
-let viewDate = new Date();
-// Current viewed date in today view
-let currentDay = new Date();
+// Help function to get current date in KST
+function getKSTDate() {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+    });
+    return new Date(formatter.format(now));
+}
+
+// Current viewed date in monthly view (Initialize with KST)
+let viewDate = getKSTDate();
+// Current viewed date in today view (Initialize with KST)
+let currentDay = getKSTDate();
 
 // Foreground notification handler
 onMessage(messaging, (payload) => {
