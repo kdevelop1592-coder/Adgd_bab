@@ -1,25 +1,22 @@
 // Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-// TODO: YOUR FIREBASE CONFIGURATION REPLACES THIS
-const firebaseConfig = {
-    apiKey: "AIzaSyD-6VZb7DYLBLwungZRvhfNLS9T5-RXtrM",
-    authDomain: "adgd-bab.firebaseapp.com",
-    projectId: "adgd-bab",
-    storageBucket: "adgd-bab.firebasestorage.app",
-    messagingSenderId: "445040265724",
-    appId: "1:445040265724:web:e971afd0ae1533a2d24a79",
-    measurementId: "G-RND2J0EBBN"
-};
+// ... (config remains same)
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 const db = getFirestore(app, "adgd-bab");
 
-// VAPID Key (Web Push Certificate) setup required in Firebase Console -> Cloud Messaging
+// Foreground notification handler
+onMessage(messaging, (payload) => {
+    console.log('Message received in foreground:', payload);
+    alert(`[알림 확인] ${payload.notification.title}\n\n${payload.notification.body}`);
+});
+
+// VAPID Key ...
 // TODO: Replace with your generate VAPID Key
 const VAPID_KEY = "BP-wVz5j889jR_q--YLtDlicDyeGRkelnsVdl87lVu0Uv6ukgq2YC774E61v31IA2Cns4lcnu9h6mWz_OK4lgkY";
 
