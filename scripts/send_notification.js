@@ -108,13 +108,10 @@ async function sendNotifications(mealMenu) {
             title: '오늘의 급식 🍚',
             body: mealMenu,
         },
-        data: {
-            title: '오늘의 급식 🍚',
-            body: mealMenu,
-        },
         webpush: {
             notification: {
                 tag: 'daily-meal-notification',
+                icon: 'https://kdevelop1592-coder.github.io/Adgd_bab/icons/icon-192.png',
                 renotify: true,
             },
             fcmOptions: {

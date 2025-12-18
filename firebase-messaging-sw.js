@@ -20,22 +20,27 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(function (payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  // Flexible payload handling (data or notification)
-  const title = (payload.data && payload.data.title) || (payload.notification && payload.notification.title) || '오늘의 급식 🍚';
-  const body = (payload.data && payload.data.body) || (payload.notification && payload.notification.body) || '메뉴 정보가 없습니다.';
+  // If the browser already shows a notification (because 'notification' key is in payload),
+  // we don't need to call showNotification manually.
+  if (payload.notification) {
+    console.log('Notification already handled by browser.');
+    return;
+  }
+
+  // Fallback for data-only messages
+  const title = (payload.data && payload.data.title) || '오늘의 급식 🍚';
+  const body = (payload.data && payload.data.body) || '메뉴 정보가 없습니다.';
 
   const notificationOptions = {
     body: body,
     icon: 'icons/icon-192.png',
-    tag: 'daily-meal-notification', // Must match the server-side tag for de-duplication
+    tag: 'daily-meal-notification',
     renotify: true,
     data: {
       url: self.registration.scope
     }
   };
 
-  // Only call showNotification if we are sure we want to override or if the browser didn't show it.
-  // Using the same 'tag' automatically handles de-duplication in most modern browsers.
   self.registration.showNotification(title, notificationOptions);
 });
 
