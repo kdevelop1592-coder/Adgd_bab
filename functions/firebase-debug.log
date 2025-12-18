@@ -24,3 +24,90 @@
 [debug] [2025-12-18T23:30:34.281Z] Checked if tokens are valid: true, expires at: 1766103954871
 [debug] [2025-12-18T23:30:34.281Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions [none]
 [debug] [2025-12-18T23:30:34.282Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-12-18T23:30:35.202Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2025-12-18T23:30:35.202Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'adgd-bab'...
+[info] 
+[info] i  deploying functions 
+[debug] [2025-12-18T23:30:35.206Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:35.206Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:35.206Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab [none]
+[debug] [2025-12-18T23:30:35.429Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab 200
+[debug] [2025-12-18T23:30:35.430Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab {"projectNumber":"445040265724","projectId":"adgd-bab","lifecycleState":"ACTIVE","name":"Adgd-bab","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-12-17T23:47:31.503625Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2025-12-18T23:30:35.435Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:35.435Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:35.435Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/adgd-bab/adminSdkConfig [none]
+[debug] [2025-12-18T23:30:35.834Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/adgd-bab/adminSdkConfig 200
+[debug] [2025-12-18T23:30:35.835Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/adgd-bab/adminSdkConfig {"projectId":"adgd-bab","storageBucket":"adgd-bab.firebasestorage.app"}
+[debug] [2025-12-18T23:30:35.835Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:35.835Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:35.835Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/adgd-bab/configs [none]
+[debug] [2025-12-18T23:30:36.939Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/adgd-bab/configs 200
+[debug] [2025-12-18T23:30:36.939Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/adgd-bab/configs {}
+[debug] [2025-12-18T23:30:36.940Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] !  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2025-12-18T23:30:38.294Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^11.8.0",
+    "firebase-functions": "^4.3.1",
+    "node-fetch": "^3.3.1"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true,
+  "type": "module"
+}
+[debug] [2025-12-18T23:30:38.295Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[info] i  functions: You are using a version of firebase-functions SDK (4.9.0) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly 
+[debug] [2025-12-18T23:30:38.296Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-12-18T23:30:38.303Z] Found firebase-functions binary at 'D:\project\bab\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8147
+
+[debug] [2025-12-18T23:30:41.826Z] Got response from /__/functions.yaml {"endpoints":{"dailyMealNotification":{"availableMemoryMb":256,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"scheduleTrigger":{"schedule":"30 7 * * *","retryConfig":{},"timeZone":"Asia/Seoul"},"entryPoint":"dailyMealNotification"}},"specVersion":"v1alpha1","requiredAPIs":[{"api":"cloudscheduler.googleapis.com","reason":"Needed for scheduled functions."}]}
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged D:\project\bab\functions (77.58 KB) for uploading 
+[debug] [2025-12-18T23:30:45.936Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:45.936Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:45.936Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/adgd-bab/locations/-/functions [none]
+[debug] [2025-12-18T23:30:46.871Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/adgd-bab/locations/-/functions 200
+[debug] [2025-12-18T23:30:46.872Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/adgd-bab/locations/-/functions {}
+[debug] [2025-12-18T23:30:46.872Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:46.872Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:46.872Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/adgd-bab/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2025-12-18T23:30:48.282Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/adgd-bab/locations/-/functions 200
+[debug] [2025-12-18T23:30:48.282Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/adgd-bab/locations/-/functions {}
+[info] i  functions: ensuring required API cloudscheduler.googleapis.com is enabled... 
+[debug] [2025-12-18T23:30:48.285Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:48.285Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:48.285Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com [none]
+[debug] [2025-12-18T23:30:48.285Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com x-goog-quota-user=projects/445040265724
+[debug] [2025-12-18T23:30:49.419Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com 200
+[debug] [2025-12-18T23:30:49.419Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com [omitted]
+[warn] !  functions: missing required API cloudscheduler.googleapis.com. Enabling now... 
+[debug] [2025-12-18T23:30:49.420Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:49.420Z] Checked if tokens are valid: true, expires at: 1766103954871
+[debug] [2025-12-18T23:30:49.420Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com:enable [none]
+[debug] [2025-12-18T23:30:49.420Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com:enable x-goog-quota-user=projects/445040265724
+[debug] [2025-12-18T23:30:50.490Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com:enable 200
+[debug] [2025-12-18T23:30:50.490Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/445040265724/services/cloudscheduler.googleapis.com:enable [omitted]
