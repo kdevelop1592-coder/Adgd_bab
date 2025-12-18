@@ -3,7 +3,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebas
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-// ... (config remains same)
+// TODO: YOUR FIREBASE CONFIGURATION REPLACES THIS
+const firebaseConfig = {
+    apiKey: "AIzaSyD-6VZb7DYLBLwungZRvhfNLS9T5-RXtrM",
+    authDomain: "adgd-bab.firebaseapp.com",
+    projectId: "adgd-bab",
+    storageBucket: "adgd-bab.firebasestorage.app",
+    messagingSenderId: "445040265724",
+    appId: "1:445040265724:web:e971afd0ae1533a2d24a79",
+    measurementId: "G-RND2J0EBBN"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
