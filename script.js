@@ -96,7 +96,26 @@ tabBtns.forEach(btn => {
 });
 
 // --- Meal API Logic ---
+const MEAL_CACHE_KEY = 'meal_data_cache';
+
+function getMealFromCache(dateStr) {
+    const cache = JSON.parse(localStorage.getItem(MEAL_CACHE_KEY) || '{}');
+    return cache[dateStr] || null;
+}
+
+function saveMealToCache(dateStr, menu) {
+    const cache = JSON.parse(localStorage.getItem(MEAL_CACHE_KEY) || '{}');
+    cache[dateStr] = menu;
+    // Limit cache size if needed, but meal data for a month is small
+    localStorage.setItem(MEAL_CACHE_KEY, JSON.stringify(cache));
+}
+
 async function fetchMeal(dateStr) {
+    // 1. Check Cache
+    const cached = getMealFromCache(dateStr);
+    if (cached) return cached;
+
+    // 2. Fetch if not in cache
     const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_YMD=${dateStr}`;
     try {
         const response = await fetch(url);
@@ -104,13 +123,39 @@ async function fetchMeal(dateStr) {
         if (data.mealServiceDietInfo?.[1]?.row) {
             const meals = data.mealServiceDietInfo[1].row;
             const lunch = meals.find(m => m.MMEAL_SC_CODE === "2") || meals[0];
-            return lunch.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
+            const menu = lunch.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
+            saveMealToCache(dateStr, menu);
+            return menu;
         }
         return null;
     } catch (e) {
         console.error('Fetch error:', e);
         return null;
     }
+}
+
+// Bulk fetch meals for a range to improve performance
+async function fetchMealRange(startDateStr, endDateStr) {
+    const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_FROM_YMD=${startDateStr}&MLSV_TO_YMD=${endDateStr}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.mealServiceDietInfo?.[1]?.row) {
+            const rows = data.mealServiceDietInfo[1].row;
+            rows.forEach(row => {
+                const date = row.MLSV_YMD;
+                const menu = row.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
+                // We only cache lunches (MMEAL_SC_CODE: 2)
+                if (row.MMEAL_SC_CODE === "2") {
+                    saveMealToCache(date, menu);
+                }
+            });
+            return true;
+        }
+    } catch (e) {
+        console.error('Fetch range error:', e);
+    }
+    return false;
 }
 
 function formatDate(date) {
@@ -149,18 +194,25 @@ nextDayBtn.onclick = () => {
 // Weekly View
 async function loadWeeklyMeal() {
     weeklyMealListEl.innerHTML = '<p class="status-message">주간 급식을 불러오는 중...</p>';
-    const startOfWeek = new Date();
-    // Monday of this week
+    const startOfWeek = new Date(currentDay);
     const day = startOfWeek.getDay();
     const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
     startOfWeek.setDate(diff);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 4);
+
+    // Fetch range first for caching
+    const startStr = formatDate(startOfWeek);
+    const endStr = formatDate(endOfWeek);
+    await fetchMealRange(startStr, endStr);
 
     let html = '';
     for (let i = 0; i < 5; i++) {
         const current = new Date(startOfWeek);
         current.setDate(startOfWeek.getDate() + i);
         const dateStr = formatDate(current);
-        const menu = await fetchMeal(dateStr);
+        const menu = getMealFromCache(dateStr); // Use cache directly after range fetch
 
         html += `
             <div class="weekly-item">
@@ -182,6 +234,11 @@ async function loadMonthlyMeal() {
     const firstDay = new Date(year, month, 1).getDay(); // 0 is Sun
     const totalDays = new Date(year, month + 1, 0).getDate();
 
+    // Pre-fetch all meals for the month
+    const startStr = formatDate(new Date(year, month, 1));
+    const endStr = formatDate(new Date(year, month, totalDays));
+    await fetchMealRange(startStr, endStr);
+
     let html = '';
 
     // Add empty slots for days before the 1st
@@ -200,7 +257,11 @@ async function loadMonthlyMeal() {
         if (dayOfWeek === 0) dayClass = 'sun';
         else if (dayOfWeek === 6) dayClass = 'sat';
 
-        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})">${i}</div>`;
+        // Check if meal exists in cache to highlight or just indicate
+        const dateStr = formatDate(date);
+        const hasMealData = getMealFromCache(dateStr);
+
+        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasMealData ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})">${i}</div>`;
     }
     monthlyMealCalendarEl.innerHTML = html;
 }
