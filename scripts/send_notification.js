@@ -106,6 +106,11 @@ async function sendNotifications(mealMenu) {
             title: '오늘의 급식 🍚',
             body: mealMenu,
         },
+        webpush: {
+            fcmOptions: {
+                link: 'https://kdevelop1592-coder.github.io/Adgd_bab/'
+            }
+        },
         tokens: tokens,
     };
 

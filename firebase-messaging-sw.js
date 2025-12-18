@@ -23,8 +23,33 @@ messaging.onBackgroundMessage(function (payload) {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: 'icons/icon-192.png'
+    icon: 'icons/icon-192.png',
+    data: {
+      url: self.registration.scope // Open the root of the app
+    }
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close(); // Close the notification
+
+  const targetUrl = event.notification.data.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+      // If a window is already open, focus it
+      for (const client of clientList) {
+        if (client.url === targetUrl && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Otherwise, open a new window
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
