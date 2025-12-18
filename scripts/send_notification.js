@@ -37,9 +37,11 @@ initializeApp({
     credential: cert(serviceAccount)
 });
 
+
 const db = getFirestore();
 const messaging = getMessaging();
 
+console.log('Service Account Project ID:', serviceAccount.project_id);
 // 2. Configuration
 // TODO: Update these codes for your target school
 const NEIS_API_KEY = ''; // Optional for small testing
