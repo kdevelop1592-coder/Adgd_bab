@@ -20,12 +20,13 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(function (payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  // If the push has a notification object, the browser might show it automatically.
-  // We only call showNotification manually if we want to customize it or if it's data-only.
-  const notificationTitle = payload.notification.title;
+  // Use data payload instead of notification to prevent double display
+  const notificationTitle = payload.data.title || '오늘의 급식 🍚';
   const notificationOptions = {
-    body: payload.notification.body,
+    body: payload.data.body || '메뉴 정보가 없습니다.',
     icon: 'icons/icon-192.png',
+    tag: 'daily-meal-notification', // Ensure duplicate messages overwrite each other
+    renotify: true, // Vibrate/sound even if overwriting
     data: {
       url: self.registration.scope
     }

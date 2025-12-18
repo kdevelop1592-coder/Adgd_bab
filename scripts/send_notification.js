@@ -104,7 +104,7 @@ async function sendNotifications(mealMenu) {
     // If > 500, user needs to chunk the array. (Assuming < 500 for this demo)
 
     const message = {
-        notification: {
+        data: {
             title: '오늘의 급식 🍚',
             body: mealMenu,
         },
