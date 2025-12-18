@@ -118,6 +118,33 @@ body {
     margin-bottom: 20px;
 }
 
+.today-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.day-btn {
+    background: transparent;
+    border: 1px solid #eee;
+    color: var(--text-sub);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.day-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
 .meal-info {
     font-size: 1.1rem;
     line-height: 1.8;

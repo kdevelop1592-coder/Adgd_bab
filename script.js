@@ -42,9 +42,13 @@ const mealModal = document.getElementById('meal-modal');
 const closeModal = document.querySelector('.close-modal');
 const modalDateEl = document.getElementById('modal-date');
 const modalMealInfoEl = document.getElementById('modal-meal-info');
+const prevDayBtn = document.getElementById('prev-day');
+const nextDayBtn = document.getElementById('next-day');
 
 // Current viewed date in monthly view
 let viewDate = new Date();
+// Current viewed date in today view
+let currentDay = new Date();
 
 // Foreground notification handler
 onMessage(messaging, (payload) => {
@@ -108,13 +112,24 @@ function getDayName(date) {
 
 // Today View
 async function loadTodayMeal() {
-    const now = new Date();
-    const dateStr = formatDate(now);
-    todayDateEl.textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 (${getDayName(now)})`;
+    const dateStr = formatDate(currentDay);
+    todayDateEl.textContent = `${currentDay.getMonth() + 1}월 ${currentDay.getDate()}일 (${getDayName(currentDay)})`;
 
+    todayMealInfoEl.innerHTML = '<span class="loading-spinner"></span> 정보를 불러오는 중...';
     const menu = await fetchMeal(dateStr);
     todayMealInfoEl.innerHTML = menu ? menu.replace(/\n/g, '<br>') : '오늘은 급식 정보가 없습니다. 🏖️';
 }
+
+// Day Navigation
+prevDayBtn.onclick = () => {
+    currentDay.setDate(currentDay.getDate() - 1);
+    loadTodayMeal();
+};
+
+nextDayBtn.onclick = () => {
+    currentDay.setDate(currentDay.getDate() + 1);
+    loadTodayMeal();
+};
 
 // Weekly View
 async function loadWeeklyMeal() {

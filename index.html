@@ -18,7 +18,7 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1><i class="fas fa-utensils"></i> 오늘의 급식</h1>
+            <h1><i class="fas fa-utensils"></i> 경덕중학교 오늘의 급식</h1>
             <p>매일 아침 7:30, 따뜻한 급식 소식을 전해드려요.</p>
         </header>
 
@@ -35,8 +35,10 @@
                 <!-- Today View -->
                 <div id="today-view" class="tab-pane active">
                     <div class="meal-card today-card">
-                        <div class="card-header">
+                        <div class="card-header today-header">
+                            <button id="prev-day" class="day-btn"><i class="fas fa-chevron-left"></i></button>
                             <span id="today-date">00월 00일 (요일)</span>
+                            <button id="next-day" class="day-btn"><i class="fas fa-chevron-right"></i></button>
                         </div>
                         <div class="meal-info" id="today-meal-info">
                             급식 정보를 불러오는 중...
