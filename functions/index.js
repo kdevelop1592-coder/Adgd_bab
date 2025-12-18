@@ -45,6 +45,7 @@ export const dailyMealNotification = onSchedule({
     schedule: "30 7 * * *",
     timeZone: "Asia/Seoul",
     memory: "256MiB",
+    secrets: ["NEIS_API_KEY"],
 }, async (event) => {
     logger.info("Starting daily meal notification job...");
 
