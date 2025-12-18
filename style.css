@@ -171,6 +171,16 @@ body {
     transition: background 0.2s;
 }
 
+.calendar-day.sun {
+    color: #e74c3c;
+    font-weight: 700;
+}
+
+.calendar-day.sat {
+    color: #3498db;
+    font-weight: 700;
+}
+
 .calendar-day.has-meal {
     background: #e3f2fd;
     color: #1976d2;

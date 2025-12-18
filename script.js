@@ -147,8 +147,15 @@ async function loadMonthlyMeal() {
 
     // Add actual days
     for (let i = 1; i <= totalDays; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth(), i);
+        const dayOfWeek = date.getDay(); // 0: Sun, 6: Sat
         const isToday = i === now.getDate();
-        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''}">${i}</div>`;
+
+        let dayClass = '';
+        if (dayOfWeek === 0) dayClass = 'sun';
+        else if (dayOfWeek === 6) dayClass = 'sat';
+
+        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}">${i}</div>`;
     }
     monthlyMealCalendarEl.innerHTML = html;
 }
