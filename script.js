@@ -15,6 +15,7 @@ const firebaseConfig = {
 };
 
 // --- School Configuration ---
+const NEIS_API_KEY = 'f94bd02dd9df439e9c1f4b136dc9df26';
 const ATPT_OFCDC_SC_CODE = 'R10';
 const SD_SCHUL_CODE = '8750186';
 
@@ -67,7 +68,7 @@ tabBtns.forEach(btn => {
 
 // --- Meal API Logic ---
 async function fetchMeal(dateStr) {
-    const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_YMD=${dateStr}`;
+    const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_YMD=${dateStr}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
