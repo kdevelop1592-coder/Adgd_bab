@@ -131,13 +131,21 @@ async function loadWeeklyMeal() {
     weeklyMealListEl.innerHTML = html;
 }
 
-// Monthly View (Simplified as list for now)
+// Monthly View (Full Calendar Grid)
 async function loadMonthlyMeal() {
     monthlyMealCalendarEl.innerHTML = '<p class="status-message">월간 일정을 생성 중...</p>';
     const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay(); // 0 is Sun
     const totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
     let html = '';
+
+    // Add empty slots for days before the 1st
+    for (let i = 0; i < firstDay; i++) {
+        html += '<div class="calendar-day empty"></div>';
+    }
+
+    // Add actual days
     for (let i = 1; i <= totalDays; i++) {
         const isToday = i === now.getDate();
         html += `<div class="calendar-day ${isToday ? 'has-meal' : ''}">${i}</div>`;
