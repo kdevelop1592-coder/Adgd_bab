@@ -23,12 +23,45 @@
         </header>
 
         <main class="main-content">
-            <div class="card notification-card" id="notification-section">
-                <div class="icon-wrapper">
-                    <img src="icons/icon-192.png" alt="App Icon" class="app-icon-display">
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="today">오늘</button>
+                <button class="tab-btn" data-tab="weekly">주간</button>
+                <button class="tab-btn" data-tab="monthly">월간</button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div id="tab-content" class="calendar-container">
+                <!-- Today View -->
+                <div id="today-view" class="tab-pane active">
+                    <div class="meal-card today-card">
+                        <div class="card-header">
+                            <span id="today-date">00월 00일 (요일)</span>
+                        </div>
+                        <div class="meal-info" id="today-meal-info">
+                            급식 정보를 불러오는 중...
+                        </div>
+                    </div>
                 </div>
-                <h2>급식 알림 받기</h2>
-                <p>매일 아침 오늘의 급식 메뉴를 푸시 알림으로 받아보세요.</p>
+
+                <!-- Weekly View -->
+                <div id="weekly-view" class="tab-pane">
+                    <div class="weekly-list" id="weekly-meal-list">
+                        <!-- Weekly items injected here -->
+                    </div>
+                </div>
+
+                <!-- Monthly View -->
+                <div id="monthly-view" class="tab-pane">
+                    <div class="monthly-calendar" id="monthly-meal-calendar">
+                        <!-- Monthly calendar items injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card notification-card" id="notification-section">
+                <h3>알림 설정</h3>
+                <p>매일 아침 7:30 급식 알림을 받으시겠습니까?</p>
                 <button id="enable-notifications" class="primary-btn">
                     <i class="fas fa-bell"></i> 알림 켜기
                 </button>
@@ -36,15 +69,10 @@
             </div>
 
             <div class="card install-card" id="install-section" style="display: none;">
-                <h2>앱 설치하기</h2>
-                <p>홈 화면에 추가하여 앱처럼 사용해보세요.</p>
+                <h3>앱 설치</h3>
                 <button id="install-btn" class="secondary-btn">
                     <i class="fas fa-download"></i> 홈 화면에 추가
                 </button>
-            </div>
-
-            <div class="meal-display" id="todays-meal">
-                <!-- 오늘의 급식 정보가 여기에 표시될 수 있습니다 (선택사항) -->
             </div>
         </main>
 
