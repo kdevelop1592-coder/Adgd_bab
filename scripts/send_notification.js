@@ -45,7 +45,7 @@ console.log('Service Account Project ID:', serviceAccount.project_id);
 // TODO: Update these codes for your target school
 const NEIS_API_KEY = process.env.NEIS_API_KEY || 'f94bd02dd9df439e9c1f4b136dc9df26'; // Supports GitHub Secrets
 const ATPT_OFCDC_SC_CODE = 'R10'; // Gyeongbuk Office of Education
-const SD_SCHUL_CODE = '8750186';  // Andong Jungang High School
+const SD_SCHUL_CODE = '8750186';  // 안동중앙고등학교 정정 (8750186)
 
 async function getTodaysMeal() {
     const today = new Date();
