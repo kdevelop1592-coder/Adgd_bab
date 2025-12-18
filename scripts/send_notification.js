@@ -43,7 +43,7 @@ const messaging = getMessaging(app);
 console.log('Service Account Project ID:', serviceAccount.project_id);
 // 2. Configuration
 // TODO: Update these codes for your target school
-const NEIS_API_KEY = 'f94bd02dd9df439e9c1f4b136dc9df26'; // Optional for small testing
+const NEIS_API_KEY = process.env.NEIS_API_KEY || 'f94bd02dd9df439e9c1f4b136dc9df26'; // Supports GitHub Secrets
 const ATPT_OFCDC_SC_CODE = 'R10'; // Gyeongbuk Office of Education
 const SD_SCHUL_CODE = '8750186';  // Andong Jungang High School
 

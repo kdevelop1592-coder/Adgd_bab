@@ -26,4 +26,5 @@ jobs:
       env:
         # Secret must be set in GitHub Repository Settings -> Secrets and variables -> Actions
         FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
       run: npm run send-notification
