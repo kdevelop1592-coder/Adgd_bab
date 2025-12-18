@@ -36,7 +36,7 @@ messaging.onBackgroundMessage(function (payload) {
 self.addEventListener('notificationclick', function (event) {
   event.notification.close(); // Close the notification
 
-  const targetUrl = event.notification.data.url || '/';
+  const targetUrl = event.notification.data.url || self.registration.scope;
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
