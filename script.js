@@ -35,6 +35,10 @@ const todayDateEl = document.getElementById('today-date');
 const todayMealInfoEl = document.getElementById('today-meal-info');
 const weeklyMealListEl = document.getElementById('weekly-meal-list');
 const monthlyMealCalendarEl = document.getElementById('monthly-meal-calendar');
+const mealModal = document.getElementById('meal-modal');
+const closeModal = document.querySelector('.close-modal');
+const modalDateEl = document.getElementById('modal-date');
+const modalMealInfoEl = document.getElementById('modal-meal-info');
 
 // Foreground notification handler
 onMessage(messaging, (payload) => {
@@ -156,9 +160,27 @@ async function loadMonthlyMeal() {
         if (dayOfWeek === 0) dayClass = 'sun';
         else if (dayOfWeek === 6) dayClass = 'sat';
 
-        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}">${i}</div>`;
+        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})">${i}</div>`;
     }
     monthlyMealCalendarEl.innerHTML = html;
+}
+
+window.showMealDetail = async function (day) {
+    const now = new Date();
+    const selectedDate = new Date(now.getFullYear(), now.getMonth(), day);
+    const dateStr = formatDate(selectedDate);
+
+    modalDateEl.textContent = `${selectedDate.getMonth() + 1}월 ${day}일 (${getDayName(selectedDate)})`;
+    modalMealInfoEl.innerHTML = '<span class="loading-spinner"></span> 정보를 불러오는 중...';
+    mealModal.classList.add('active');
+
+    const menu = await fetchMeal(dateStr);
+    modalMealInfoEl.innerHTML = menu ? menu.replace(/\n/g, '<br>') : '급식 정보가 없습니다. 🏖️';
+}
+
+closeModal.onclick = () => mealModal.classList.remove('active');
+window.onclick = (event) => {
+    if (event.target == mealModal) mealModal.classList.remove('active');
 }
 
 // Initial Load
