@@ -48,11 +48,22 @@ const ATPT_OFCDC_SC_CODE = 'R10'; // Gyeongbuk Office of Education
 const SD_SCHUL_CODE = '8750186';  // 안동중앙고등학교 정정 (8750186)
 
 async function getTodaysMeal() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    // 서버 시간(UTC)에 관계없이 한국 시간(KST) 기준으로 날짜 생성
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+
+    const parts = formatter.formatToParts(now);
+    const year = parts.find(p => p.type === 'year').value;
+    const month = parts.find(p => p.type === 'month').value;
+    const day = parts.find(p => p.type === 'day').value;
     const dateStr = `${year}${month}${day}`;
+
+    console.log(`Fetching meal for date: ${dateStr} (KST)`);
 
     const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_YMD=${dateStr}`;
 
