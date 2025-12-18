@@ -53,8 +53,16 @@
 
                 <!-- Monthly View -->
                 <div id="monthly-view" class="tab-pane">
-                    <div class="monthly-calendar" id="monthly-meal-calendar">
-                        <!-- Monthly calendar items injected here -->
+                    <div class="calendar-header">
+                        <button id="prev-month" class="month-btn"><i class="fas fa-chevron-left"></i></button>
+                        <h3 id="current-month">2024년 12월</h3>
+                        <button id="next-month" class="month-btn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid-header">
+                        <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                    </div>
+                    <div class="calendar-grid" id="monthly-meal-calendar">
+                        <!-- Calendar days will be generated here -->
                     </div>
                 </div>
             </div>

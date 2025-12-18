@@ -35,10 +35,16 @@ const todayDateEl = document.getElementById('today-date');
 const todayMealInfoEl = document.getElementById('today-meal-info');
 const weeklyMealListEl = document.getElementById('weekly-meal-list');
 const monthlyMealCalendarEl = document.getElementById('monthly-meal-calendar');
+const currentMonthEl = document.getElementById('current-month');
+const prevMonthBtn = document.getElementById('prev-month');
+const nextMonthBtn = document.getElementById('next-month');
 const mealModal = document.getElementById('meal-modal');
 const closeModal = document.querySelector('.close-modal');
 const modalDateEl = document.getElementById('modal-date');
 const modalMealInfoEl = document.getElementById('modal-meal-info');
+
+// Current viewed date in monthly view
+let viewDate = new Date();
 
 // Foreground notification handler
 onMessage(messaging, (payload) => {
@@ -138,10 +144,13 @@ async function loadWeeklyMeal() {
 
 // Monthly View (Full Calendar Grid)
 async function loadMonthlyMeal() {
+    currentMonthEl.textContent = `${viewDate.getFullYear()}년 ${viewDate.getMonth() + 1}월`;
     monthlyMealCalendarEl.innerHTML = '<p class="status-message">월간 일정을 생성 중...</p>';
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay(); // 0 is Sun
-    const totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay(); // 0 is Sun
+    const totalDays = new Date(year, month + 1, 0).getDate();
 
     let html = '';
 
@@ -151,10 +160,11 @@ async function loadMonthlyMeal() {
     }
 
     // Add actual days
+    const now = new Date();
     for (let i = 1; i <= totalDays; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth(), i);
-        const dayOfWeek = date.getDay(); // 0: Sun, 6: Sat
-        const isToday = i === now.getDate();
+        const isToday = i === now.getDate() && month === now.getMonth() && year === now.getFullYear();
+        const date = new Date(year, month, i);
+        const dayOfWeek = date.getDay();
 
         let dayClass = '';
         if (dayOfWeek === 0) dayClass = 'sun';
@@ -165,12 +175,34 @@ async function loadMonthlyMeal() {
     monthlyMealCalendarEl.innerHTML = html;
 }
 
+// Month Navigation
+prevMonthBtn.onclick = () => {
+    viewDate.setMonth(viewDate.getMonth() - 1);
+    loadMonthlyMeal();
+};
+
+nextMonthBtn.onclick = async () => {
+    const nextDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+    const dateStr = formatDate(nextDate);
+
+    // Check if next month has data
+    const menu = await fetchMeal(dateStr);
+    if (!menu && nextDate > new Date()) {
+        alert("아직 다음 달 급식 정보가 없습니다. 🏖️");
+        return;
+    }
+
+    viewDate.setMonth(viewDate.getMonth() + 1);
+    loadMonthlyMeal();
+};
+
 window.showMealDetail = async function (day) {
-    const now = new Date();
-    const selectedDate = new Date(now.getFullYear(), now.getMonth(), day);
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const selectedDate = new Date(year, month, day);
     const dateStr = formatDate(selectedDate);
 
-    modalDateEl.textContent = `${selectedDate.getMonth() + 1}월 ${day}일 (${getDayName(selectedDate)})`;
+    modalDateEl.textContent = `${month + 1}월 ${day}일 (${getDayName(selectedDate)})`;
     modalMealInfoEl.innerHTML = '<span class="loading-spinner"></span> 정보를 불러오는 중...';
     mealModal.classList.add('active');
 
