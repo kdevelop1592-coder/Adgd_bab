@@ -208,7 +208,13 @@ async function loadMonthlyMeal() {
         }
 
         const title = holidayName ? `title="${holidayName}"` : '';
-        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})" ${title}>${i}</div>`;
+        // 공휴일인 경우 이름 표시 (calendar-day 내부 구조 변경: flex column 처리 필요)
+        const labelHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
+
+        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})" ${title}>
+            <span class="day-number">${i}</span>
+            ${labelHtml}
+        </div>`;
     }
     monthlyMealCalendarEl.innerHTML = html;
 }

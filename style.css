@@ -232,13 +232,35 @@ body {
 .calendar-day {
     aspect-ratio: 1;
     display: flex;
+    flex-direction: column; /* 날짜와 휴일 이름을 세로로 배치 */
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; /* 위쪽 정렬 */
+    padding-top: 5px; /* 상단 여백 */
     font-size: 0.9rem;
     border-radius: 8px;
     background: #fdfdfd;
     cursor: pointer;
     transition: background 0.2s;
+    overflow: hidden; /* 긴 텍스트 넘침 방지 */
+}
+
+/* 날짜 숫자 */
+.day-number {
+    margin-bottom: 2px;
+}
+
+/* 공휴일 라벨 */
+.holiday-label {
+    font-size: 0.6rem; /* 아주 작은 글씨 */
+    color: #c0392b; /* 진한 빨간색 */
+    font-weight: normal;
+    text-align: center;
+    line-height: 1.1;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 2px;
 }
 
 .calendar-day.sun {
