@@ -96,21 +96,47 @@ tabBtns.forEach(btn => {
 });
 
 // --- Meal API Logic ---
-async function fetchMeal(dateStr) {
-    const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_YMD=${dateStr}`;
+// 메모리 캐시 (월별 급식 데이터)
+const mealCache = {}; // Key: "YYYYMM", Value: Object { "YYYYMMDD": "메뉴..." }
+
+// --- Meal API Logic (Improved) ---
+// 개별 호출 대신 월 단위로 서버에서 가져옴
+async function fetchMonthlyMeals(year, month) {
+    const monthKey = `${year}${String(month).padStart(2, '0')}`;
+    if (mealCache[monthKey]) {
+        return mealCache[monthKey];
+    }
+
+    const url = `https://us-central1-adgd-bab.cloudfunctions.net/getMeals?year=${year}&month=${month}`;
     try {
         const response = await fetch(url);
-        const data = await response.json();
-        if (data.mealServiceDietInfo?.[1]?.row) {
-            const meals = data.mealServiceDietInfo[1].row;
-            const lunch = meals.find(m => m.MMEAL_SC_CODE === "2") || meals[0];
-            return lunch.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
+        const json = await response.json();
+
+        if (json.success && json.data) {
+            mealCache[monthKey] = json.data;
+            return json.data;
         }
-        return null;
+        return {};
     } catch (e) {
-        console.error('Fetch error:', e);
-        return null;
+        console.error('Failed to fetch monthly meals:', e);
+        return {};
     }
+}
+
+// 특정 날짜의 급식 가져오기 (캐시 활용)
+async function fetchMeal(dateStr) {
+    // dateStr format: YYYYMMDD
+    const year = dateStr.substring(0, 4);
+    const month = parseInt(dateStr.substring(4, 6), 10);
+    const monthKey = `${year}${String(month).padStart(2, '0')}`;
+
+    // 캐시에 없으면 해당 월 전체 데이터를 요청
+    if (!mealCache[monthKey]) {
+        await fetchMonthlyMeals(year, month);
+    }
+
+    const monthlyData = mealCache[monthKey] || {};
+    return monthlyData[dateStr] || null;
 }
 
 function formatDate(date) {
