@@ -251,6 +251,12 @@ body {
     font-weight: 700;
 }
 
+.calendar-day.holiday {
+    color: #e74c3c;
+    font-weight: 700;
+    background: #ffebee;
+}
+
 .calendar-day.has-meal {
     background: #e3f2fd;
     color: #1976d2;

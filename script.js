@@ -195,12 +195,20 @@ async function loadMonthlyMeal() {
         const isToday = i === now.getDate() && month === now.getMonth() && year === now.getFullYear();
         const date = new Date(year, month, i);
         const dayOfWeek = date.getDay();
+        const holiday = window.holidayAPI.isHoliday(date);
+        const holidayName = window.holidayAPI.getHolidayName(date);
 
         let dayClass = '';
-        if (dayOfWeek === 0) dayClass = 'sun';
-        else if (dayOfWeek === 6) dayClass = 'sat';
+        if (holiday) {
+            dayClass = 'holiday';
+        } else if (dayOfWeek === 0) {
+            dayClass = 'sun';
+        } else if (dayOfWeek === 6) {
+            dayClass = 'sat';
+        }
 
-        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})">${i}</div>`;
+        const title = holidayName ? `title="${holidayName}"` : '';
+        html += `<div class="calendar-day ${isToday ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})" ${title}>${i}</div>`;
     }
     monthlyMealCalendarEl.innerHTML = html;
 }
@@ -256,8 +264,11 @@ window.onclick = (event) => {
 }
 
 // Initial Load
-loadTodayMeal();
-loadMonthlyMeal();
+(async () => {
+    await window.holidayAPI.init();
+    loadTodayMeal();
+    loadMonthlyMeal();
+})();
 
 
 // --- Notification Logic ---
