@@ -217,15 +217,40 @@ async function loadMonthlyMeal() {
         </div>`;
     }
     monthlyMealCalendarEl.innerHTML = html;
+
+    // 데이터 존재 여부 확인 및 표시 (비동기로 처리하여 UI 렌더링 방해 않음)
+    checkDataStatus(year, month);
 }
 
-// Month Navigation
+async function checkDataStatus(year, month) {
+    let hasData = false;
+    // 월 초 7일간 데이터 확인
+    for (let i = 1; i <= 7; i++) {
+        const checkDate = new Date(year, month, i);
+        const dateStr = formatDate(checkDate);
+        const menu = await fetchMeal(dateStr);
+        if (menu) {
+            hasData = true;
+            break;
+        }
+    }
+
+    if (!hasData) {
+        const currentText = currentMonthEl.textContent;
+        // 이미 표시된 경우 중복 방지
+        if (!currentText.includes('(정보 없음)')) {
+            currentMonthEl.innerHTML = `${currentText} <span style="font-size: 0.7em; color: var(--text-sub); font-weight: normal;">(급식 정보 없음)</span>`;
+        }
+    }
+}
 prevMonthBtn.onclick = () => {
     viewDate.setMonth(viewDate.getMonth() - 1);
     loadMonthlyMeal();
 };
 
 nextMonthBtn.onclick = async () => {
+    // 급식 정보가 없더라도 달력은 볼 수 있게 제한 해제
+    /*
     const nextDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
 
     // Check if next month has data (check first 7 days to account for holidays/weekends)
@@ -245,6 +270,7 @@ nextMonthBtn.onclick = async () => {
         alert("아직 다음 달 급식 정보가 없습니다. 🏖️");
         return;
     }
+    */
 
     viewDate.setMonth(viewDate.getMonth() + 1);
     loadMonthlyMeal();
