@@ -1,14 +1,18 @@
-import { onSchedule } from "firebase-functions/v2/scheduler";
-import { logger } from "firebase-functions";
-import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import { getMessaging } from "firebase-admin/messaging";
-import fetch from "node-fetch";
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { logger } = require("firebase-functions");
+const { initializeApp } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
+const { getMessaging } = require("firebase-admin/messaging");
+const { getHolidays } = require("./getHolidays.js");
+const { getMeals } = require("./getMeals.js");
 
 initializeApp();
 
-const db = getFirestore();
+const db = getFirestore('adgd-bab');
 const messaging = getMessaging();
+
+exports.getHolidays = getHolidays;
+exports.getMeals = getMeals;
 
 // 학교 설정 (기존 scripts/send_notification.js에서 복사)
 const NEIS_API_KEY = process.env.NEIS_API_KEY || 'f94bd02dd9df439e9c1f4b136dc9df26';
@@ -52,7 +56,7 @@ async function getTodaysMeal() {
     }
 }
 
-export const dailyMealNotification = onSchedule({
+exports.dailyMealNotification = onSchedule({
     schedule: "30 7 * * *",
     timeZone: "Asia/Seoul",
     memory: "256MiB",

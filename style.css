@@ -232,13 +232,47 @@ body {
 .calendar-day {
     aspect-ratio: 1;
     display: flex;
+    flex-direction: column;
+    /* 날짜와 휴일 이름을 세로로 배치 */
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    /* 위쪽 정렬 */
+    padding-top: 5px;
+    /* 상단 여백 */
     font-size: 0.9rem;
     border-radius: 8px;
     background: #fdfdfd;
     cursor: pointer;
     transition: background 0.2s;
+    overflow: hidden;
+    /* 긴 텍스트 넘침 방지 */
+}
+
+/* 날짜 숫자 */
+.day-number {
+    margin-bottom: 2px;
+}
+
+/* 공휴일 라벨 */
+.holiday-label {
+    font-size: 0.55rem;
+    /* 글자 크기 약간 축소 */
+    color: #c0392b;
+    font-weight: 600;
+    /* 글자가 작아지므로 굵기를 줘서 가독성 확보 */
+    text-align: center;
+    line-height: 1.0;
+    /* 줄간격 최소화 */
+    width: 100%;
+    white-space: normal;
+    /* 줄바꿈 허용 */
+    word-break: keep-all;
+    /* 단어 중간에 끊기지 않게 (한글 최적화) */
+    overflow: hidden;
+    padding: 0 1px;
+    letter-spacing: -0.5px;
+    /* 자간 좁힘 */
+    margin-top: 1px;
 }
 
 .calendar-day.sun {
@@ -249,6 +283,12 @@ body {
 .calendar-day.sat {
     color: #3498db;
     font-weight: 700;
+}
+
+.calendar-day.holiday {
+    color: #e74c3c;
+    font-weight: 700;
+    background: #ffebee;
 }
 
 .calendar-day.has-meal {

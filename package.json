@@ -1,14 +1,12 @@
 {
-  "name": "today-meal-pwa",
+  "name": "meal-notification-pwa",
   "version": "1.0.0",
-  "description": "School Meal Notification PWA",
-  "main": "index.js",
+  "description": "경덕중학교 급식 알리미 PWA",
   "scripts": {
-    "send-notification": "node scripts/send_notification.js"
+    "test": "node test-pwa.js",
+    "test:headed": "node test-pwa.js"
   },
-  "dependencies": {
-    "firebase-admin": "^11.5.0",
-    "node-fetch": "^3.3.0"
-  },
-  "type": "module"
+  "devDependencies": {
+    "playwright": "^1.57.0"
+  }
 }

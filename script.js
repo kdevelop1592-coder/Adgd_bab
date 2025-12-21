@@ -96,66 +96,47 @@ tabBtns.forEach(btn => {
 });
 
 // --- Meal API Logic ---
-const MEAL_CACHE_KEY = 'meal_data_cache';
+// 메모리 캐시 (월별 급식 데이터)
+const mealCache = {}; // Key: "YYYYMM", Value: Object { "YYYYMMDD": "메뉴..." }
 
-function getMealFromCache(dateStr) {
-    const cache = JSON.parse(localStorage.getItem(MEAL_CACHE_KEY) || '{}');
-    return cache[dateStr] || null;
+// --- Meal API Logic (Improved) ---
+// 개별 호출 대신 월 단위로 서버에서 가져옴
+async function fetchMonthlyMeals(year, month) {
+    const monthKey = `${year}${String(month).padStart(2, '0')}`;
+    if (mealCache[monthKey]) {
+        return mealCache[monthKey];
+    }
+
+    const url = `https://us-central1-adgd-bab.cloudfunctions.net/getMeals?year=${year}&month=${month}`;
+    try {
+        const response = await fetch(url);
+        const json = await response.json();
+
+        if (json.success && json.data) {
+            mealCache[monthKey] = json.data;
+            return json.data;
+        }
+        return {};
+    } catch (e) {
+        console.error('Failed to fetch monthly meals:', e);
+        return {};
+    }
 }
 
-function saveMealToCache(dateStr, menu) {
-    const cache = JSON.parse(localStorage.getItem(MEAL_CACHE_KEY) || '{}');
-    cache[dateStr] = menu;
-    // Limit cache size if needed, but meal data for a month is small
-    localStorage.setItem(MEAL_CACHE_KEY, JSON.stringify(cache));
-}
-
+// 특정 날짜의 급식 가져오기 (캐시 활용)
 async function fetchMeal(dateStr) {
-    // 1. Check Cache
-    const cached = getMealFromCache(dateStr);
-    if (cached) return cached;
+    // dateStr format: YYYYMMDD
+    const year = dateStr.substring(0, 4);
+    const month = parseInt(dateStr.substring(4, 6), 10);
+    const monthKey = `${year}${String(month).padStart(2, '0')}`;
 
-    // 2. Fetch if not in cache
-    const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_YMD=${dateStr}`;
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.mealServiceDietInfo?.[1]?.row) {
-            const meals = data.mealServiceDietInfo[1].row;
-            const lunch = meals.find(m => m.MMEAL_SC_CODE === "2") || meals[0];
-            const menu = lunch.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
-            saveMealToCache(dateStr, menu);
-            return menu;
-        }
-        return null;
-    } catch (e) {
-        console.error('Fetch error:', e);
-        return null;
+    // 캐시에 없으면 해당 월 전체 데이터를 요청
+    if (!mealCache[monthKey]) {
+        await fetchMonthlyMeals(year, month);
     }
-}
 
-// Bulk fetch meals for a range to improve performance
-async function fetchMealRange(startDateStr, endDateStr) {
-    const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_FROM_YMD=${startDateStr}&MLSV_TO_YMD=${endDateStr}`;
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.mealServiceDietInfo?.[1]?.row) {
-            const rows = data.mealServiceDietInfo[1].row;
-            rows.forEach(row => {
-                const date = row.MLSV_YMD;
-                const menu = row.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
-                // We only cache lunches (MMEAL_SC_CODE: 2)
-                if (row.MMEAL_SC_CODE === "2") {
-                    saveMealToCache(date, menu);
-                }
-            });
-            return true;
-        }
-    } catch (e) {
-        console.error('Fetch range error:', e);
-    }
-    return false;
+    const monthlyData = mealCache[monthKey] || {};
+    return monthlyData[dateStr] || null;
 }
 
 function formatDate(date) {
@@ -202,17 +183,14 @@ async function loadWeeklyMeal() {
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 4);
 
-    // Fetch range first for caching
-    const startStr = formatDate(startOfWeek);
-    const endStr = formatDate(endOfWeek);
-    await fetchMealRange(startStr, endStr);
+    // Monthly fetch already handles this via fetchMeal
 
     let html = '';
     for (let i = 0; i < 5; i++) {
         const current = new Date(startOfWeek);
         current.setDate(startOfWeek.getDate() + i);
         const dateStr = formatDate(current);
-        const menu = getMealFromCache(dateStr); // Use cache directly after range fetch
+        const menu = await fetchMeal(dateStr);
 
         html += `
             <div class="weekly-item">
@@ -234,10 +212,8 @@ async function loadMonthlyMeal() {
     const firstDay = new Date(year, month, 1).getDay(); // 0 is Sun
     const totalDays = new Date(year, month + 1, 0).getDate();
 
-    // Pre-fetch all meals for the month
-    const startStr = formatDate(new Date(year, month, 1));
-    const endStr = formatDate(new Date(year, month, totalDays));
-    await fetchMealRange(startStr, endStr);
+    // Fetching handled within loadMonthlyMeal's date loop if not in cache
+    await fetchMonthlyMeals(year, month + 1);
 
     let html = '';
 
@@ -252,27 +228,65 @@ async function loadMonthlyMeal() {
         const isToday = i === now.getDate() && month === now.getMonth() && year === now.getFullYear();
         const date = new Date(year, month, i);
         const dayOfWeek = date.getDay();
+        const holiday = window.holidayAPI.isHoliday(date);
+        const holidayName = window.holidayAPI.getHolidayName(date);
 
         let dayClass = '';
-        if (dayOfWeek === 0) dayClass = 'sun';
-        else if (dayOfWeek === 6) dayClass = 'sat';
+        if (holiday) {
+            dayClass = 'holiday';
+        } else if (dayOfWeek === 0) {
+            dayClass = 'sun';
+        } else if (dayOfWeek === 6) {
+            dayClass = 'sat';
+        }
 
-        // Check if meal exists in cache to highlight or just indicate
+        // Check if meal exists in cache to highlight
         const dateStr = formatDate(date);
-        const hasMealData = getMealFromCache(dateStr);
+        const hasMealData = await fetchMeal(dateStr);
 
-        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasMealData ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})">${i}</div>`;
+        const title = holidayName ? `title="${holidayName}"` : '';
+        const labelHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
+
+        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasMealData ? 'has-meal' : ''} ${dayClass}" onclick="showMealDetail(${i})" ${title}>
+            <span class="day-number">${i}</span>
+            ${labelHtml}
+        </div>`;
     }
     monthlyMealCalendarEl.innerHTML = html;
+
+    // 데이터 존재 여부 확인 및 표시 (비동기로 처리하여 UI 렌더링 방해 않음)
+    checkDataStatus(year, month);
 }
 
-// Month Navigation
+async function checkDataStatus(year, month) {
+    let hasData = false;
+    // 월 초 7일간 데이터 확인
+    for (let i = 1; i <= 7; i++) {
+        const checkDate = new Date(year, month, i);
+        const dateStr = formatDate(checkDate);
+        const menu = await fetchMeal(dateStr);
+        if (menu) {
+            hasData = true;
+            break;
+        }
+    }
+
+    if (!hasData) {
+        const currentText = currentMonthEl.textContent;
+        // 이미 표시된 경우 중복 방지
+        if (!currentText.includes('(정보 없음)')) {
+            currentMonthEl.innerHTML = `${currentText} <span style="font-size: 0.7em; color: var(--text-sub); font-weight: normal;">(급식 정보 없음)</span>`;
+        }
+    }
+}
 prevMonthBtn.onclick = () => {
     viewDate.setMonth(viewDate.getMonth() - 1);
     loadMonthlyMeal();
 };
 
 nextMonthBtn.onclick = async () => {
+    // 급식 정보가 없더라도 달력은 볼 수 있게 제한 해제
+    /*
     const nextDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
 
     // Check if next month has data (check first 7 days to account for holidays/weekends)
@@ -292,6 +306,7 @@ nextMonthBtn.onclick = async () => {
         alert("아직 다음 달 급식 정보가 없습니다. 🏖️");
         return;
     }
+    */
 
     viewDate.setMonth(viewDate.getMonth() + 1);
     loadMonthlyMeal();
@@ -317,8 +332,11 @@ window.onclick = (event) => {
 }
 
 // Initial Load
-loadTodayMeal();
-loadMonthlyMeal();
+(async () => {
+    await window.holidayAPI.init();
+    loadTodayMeal();
+    loadMonthlyMeal();
+})();
 
 
 // --- Notification Logic ---
