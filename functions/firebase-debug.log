@@ -1,0 +1,22 @@
+[debug] [2025-12-21T21:27:55.006Z] ----------------------------------------------------------------------
+[debug] [2025-12-21T21:27:55.009Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\kalna\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2025-12-21T21:27:55.009Z] CLI Version:   15.1.0
+[debug] [2025-12-21T21:27:55.009Z] Platform:      win32
+[debug] [2025-12-21T21:27:55.009Z] Node Version:  v24.11.1
+[debug] [2025-12-21T21:27:55.009Z] Time:          Mon Dec 22 2025 06:27:55 GMT+0900 (대한민국 표준시)
+[debug] [2025-12-21T21:27:55.009Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-12-21T21:27:56.264Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-12-21T21:27:56.264Z] > authorizing via signed-in user (kdevelop1592@gmail.com)
+[debug] [2025-12-21T21:27:56.264Z] [iam] checking project adgd-bab for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2025-12-21T21:27:56.265Z] Checked if tokens are valid: true, expires at: 1766355352542
+[debug] [2025-12-21T21:27:56.265Z] Checked if tokens are valid: true, expires at: 1766355352542
+[debug] [2025-12-21T21:27:56.266Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions [none]
+[debug] [2025-12-21T21:27:56.266Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions x-goog-quota-user=projects/adgd-bab
+[debug] [2025-12-21T21:27:56.266Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-12-21T21:27:56.561Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions 200
+[debug] [2025-12-21T21:27:56.561Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-12-21T21:27:56.562Z] Checked if tokens are valid: true, expires at: 1766355352542
+[debug] [2025-12-21T21:27:56.562Z] Checked if tokens are valid: true, expires at: 1766355352542
+[debug] [2025-12-21T21:27:56.562Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-12-21T21:27:56.562Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}

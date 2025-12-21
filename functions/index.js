@@ -56,7 +56,6 @@ async function getTodaysMeal() {
     }
 }
 
-/*
 exports.dailyMealNotification = onSchedule({
     schedule: "30 7 * * *",
     timeZone: "Asia/Seoul",
@@ -110,4 +109,3 @@ exports.dailyMealNotification = onSchedule({
         logger.error('Error sending message:', error);
     }
 });
-*/
