@@ -18,7 +18,7 @@ exports.getMeals = functions.https.onRequest(async (req, res) => {
     }
 
     try {
-        const db = getFirestore();
+        const db = getFirestore('adgd-bab');
         const year = req.query.year;
         const month = req.query.month; // 1 ~ 12 (문자열)
 

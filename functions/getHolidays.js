@@ -14,7 +14,8 @@ exports.getHolidays = functions.https.onRequest(async (req, res) => {
     }
 
     try {
-        const db = getFirestore();
+        const db = getFirestore('adgd-bab');
+        const year = req.query.year || new Date().getFullYear().toString();
 
         // 1. Firestore 캐시 확인
         const cacheRef = db.collection('holidays').doc('cache');
