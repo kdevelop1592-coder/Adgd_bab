@@ -1,7 +1,7 @@
 // Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { getMessaging, getToken, onMessage, deleteToken } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
+import { getFirestore, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 // TODO: YOUR FIREBASE CONFIGURATION REPLACES THIS
 const firebaseConfig = {
@@ -336,10 +336,59 @@ window.onclick = (event) => {
     await window.holidayAPI.init();
     loadTodayMeal();
     loadMonthlyMeal();
+    checkNotificationState();
 })();
 
 
 // --- Notification Logic ---
+
+// 알림 상태 확인 및 UI 업데이트
+async function checkNotificationState() {
+    try {
+        if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+            notificationBtn.style.display = 'none';
+            return;
+        }
+
+        if (Notification.permission === 'denied') {
+            updateStatus('알림 권한이 차단되어 있습니다. 브라우저 설정에서 허용해 주세요.', 'error');
+            notificationBtn.disabled = true;
+            return;
+        }
+
+        const registration = await navigator.serviceWorker.getRegistration();
+        const currentToken = await getToken(messaging, {
+            vapidKey: VAPID_KEY,
+            serviceWorkerRegistration: registration
+        }).catch(() => null);
+
+        if (currentToken) {
+            // 이미 토큰이 있음 -> 알림 켜진 상태
+            setNotificationUI(true);
+            // 만약을 위해 서버에도 다시 한번 저장 (업데이트)
+            saveTokenToFirestore(currentToken);
+        } else {
+            // 토큰 없음 -> 알림 꺼진 상태
+            setNotificationUI(false);
+        }
+    } catch (error) {
+        console.error('Check notification state error:', error);
+    }
+}
+
+function setNotificationUI(isEnabled) {
+    if (isEnabled) {
+        notificationBtn.innerHTML = '<i class="fas fa-bell-slash"></i> 알림 끄기';
+        notificationBtn.className = 'danger-btn';
+        notificationBtn.onclick = unsubscribeFromNotifications;
+    } else {
+        notificationBtn.innerHTML = '<i class="fas fa-bell"></i> 알림 켜기';
+        notificationBtn.className = 'primary-btn';
+        notificationBtn.onclick = requestPermissionAndSaveToken;
+    }
+    notificationBtn.style.opacity = '1';
+    notificationBtn.disabled = false;
+}
 
 async function requestPermissionAndSaveToken() {
     try {
@@ -360,19 +409,49 @@ async function requestPermissionAndSaveToken() {
                 updateStatus('토큰 발급 완료. 서버에 저장 중...', 'loading');
                 await saveTokenToFirestore(token);
                 updateStatus('알림 설정이 완료되었습니다! ✅', 'success');
-                notificationBtn.innerHTML = '<i class="fas fa-check"></i> 설정 완료';
+                setNotificationUI(true);
             } else {
                 updateStatus('토큰 발급 실패. 다시 시도해 주세요.', 'error');
-                notificationBtn.disabled = false;
-                notificationBtn.innerHTML = '<i class="fas fa-bell"></i> 알림 켜기';
+                setNotificationUI(false);
             }
         } else {
             updateStatus('알림 권한이 거부되었습니다.', 'error');
-            notificationBtn.disabled = false;
+            setNotificationUI(false);
         }
     } catch (error) {
         console.error('Notification Error:', error);
         updateStatus('오류: ' + error.message, 'error');
+        setNotificationUI(false);
+    }
+}
+
+async function unsubscribeFromNotifications() {
+    try {
+        if (!confirm('정말로 급식 알림을 끄시겠습니까?')) return;
+
+        notificationBtn.disabled = true;
+        notificationBtn.innerHTML = '<span class="loading-spinner"></span> 처리 중...';
+
+        const registration = await navigator.serviceWorker.getRegistration();
+        const token = await getToken(messaging, {
+            vapidKey: VAPID_KEY,
+            serviceWorkerRegistration: registration
+        });
+
+        if (token) {
+            // 1. Firestore에서 삭제
+            await deleteDoc(doc(db, "users", token));
+            // 2. FCM 토큰 폐기
+            await deleteToken(messaging);
+
+            updateStatus('알림 서비스가 해지되었습니다. 🔕', 'success');
+            setNotificationUI(false);
+        } else {
+            setNotificationUI(false);
+        }
+    } catch (error) {
+        console.error('Unsubscribe Error:', error);
+        updateStatus('알림 해지 중 오류가 발생했습니다.', 'error');
         notificationBtn.disabled = false;
     }
 }
@@ -381,9 +460,9 @@ async function saveTokenToFirestore(token) {
     const userRef = doc(db, "users", token);
     await setDoc(userRef, {
         token: token,
-        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         platform: navigator.userAgent
-    });
+    }, { merge: true });
 }
 
 function updateStatus(msg, type) {
@@ -391,7 +470,7 @@ function updateStatus(msg, type) {
     statusMsg.className = 'status-message ' + type;
 }
 
-notificationBtn.addEventListener('click', requestPermissionAndSaveToken);
+// notificationBtn.addEventListener('click', requestPermissionAndSaveToken); // onClick으로 관리하도록 변경
 
 // --- PWA Install Logic ---
 let deferredPrompt;

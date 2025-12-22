@@ -315,9 +315,54 @@ body {
     font-size: 1.1rem;
 }
 
+.primary-btn,
+.secondary-btn,
+.danger-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.danger-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.primary-btn:active,
+.secondary-btn:active,
+.danger-btn:active {
+    transform: translateY(0);
+}
+
 .primary-btn {
     background: var(--primary-color);
     color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    width: 100%;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.danger-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    width: 100%;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.secondary-btn {
+    background: #ecf0f1;
+    color: var(--text-main);
     border: none;
     padding: 14px;
     border-radius: 12px;
@@ -339,6 +384,11 @@ body {
 
 .status-message.error {
     color: #e74c3c;
+}
+
+.status-message.loading {
+    color: var(--text-sub);
+    font-style: italic;
 }
 
 .footer {
