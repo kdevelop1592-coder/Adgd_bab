@@ -15,7 +15,6 @@ const firebaseConfig = {
 };
 
 // --- School Configuration ---
-const NEIS_API_KEY = 'f94bd02dd9df439e9c1f4b136dc9df26';
 const ATPT_OFCDC_SC_CODE = 'R10';
 const SD_SCHUL_CODE = '8750186'; // 안동중앙고등학교 정정 (8750186)
 

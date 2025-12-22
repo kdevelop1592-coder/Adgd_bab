@@ -15,7 +15,7 @@ exports.getHolidays = getHolidays;
 exports.getMeals = getMeals;
 
 // 학교 설정 (기존 scripts/send_notification.js에서 복사)
-const NEIS_API_KEY = process.env.NEIS_API_KEY || 'f94bd02dd9df439e9c1f4b136dc9df26';
+const NEIS_API_KEY = process.env.NEIS_API_KEY;
 const ATPT_OFCDC_SC_CODE = 'R10';
 const SD_SCHUL_CODE = '8750186';
 

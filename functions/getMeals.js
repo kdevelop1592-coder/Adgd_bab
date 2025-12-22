@@ -1,8 +1,8 @@
 const functions = require('firebase-functions');
 const { getFirestore } = require('firebase-admin/firestore');
 
-// NEIS API 설정 (환경 변수 권장하지만, 기존 클라이언트 코드 참조)
-const NEIS_API_KEY = 'f94bd02dd9df439e9c1f4b136dc9df26';
+// NEIS API 설정 (Firebase Secrets 사용)
+const NEIS_API_KEY = process.env.NEIS_API_KEY;
 const ATPT_OFCDC_SC_CODE = 'R10';
 const SD_SCHUL_CODE = '8750186';
 
