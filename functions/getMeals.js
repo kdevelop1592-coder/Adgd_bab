@@ -1,23 +1,18 @@
-const functions = require('firebase-functions');
+const { onRequest } = require("firebase-functions/v2/https");
 const { getFirestore } = require('firebase-admin/firestore');
+const { logger } = require("firebase-functions");
 
-// NEIS API 설정 (Firebase Secrets 사용)
-const NEIS_API_KEY = process.env.NEIS_API_KEY;
+// NEIS API 설정
 const ATPT_OFCDC_SC_CODE = 'R10';
 const SD_SCHUL_CODE = '8750186';
 
-exports.getMeals = functions.https.onRequest(async (req, res) => {
-    // CORS 설정
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        res.status(204).send('');
-        return;
-    }
-
+exports.getMeals = onRequest({
+    secrets: ["NEIS_API_KEY"],
+    cors: true, // Gen 2 handles CORS via this option
+    region: "us-central1"
+}, async (req, res) => {
     try {
+        const NEIS_API_KEY = process.env.NEIS_API_KEY;
         const db = getFirestore('adgd-bab');
         const year = req.query.year;
         const month = req.query.month; // 1 ~ 12 (문자열)
@@ -40,7 +35,7 @@ exports.getMeals = functions.https.onRequest(async (req, res) => {
             const cacheData = cacheDoc.data();
             // 캐시가 있고 24시간 이내라면 반환
             if (cacheData.timestamp && (now - cacheData.timestamp < ONE_DAY)) {
-                console.log(`Serving meals from cache for ${docId}`);
+                logger.info(`Serving meals from cache for ${docId}`);
                 res.status(200).json({
                     success: true,
                     data: cacheData.data,
@@ -51,7 +46,7 @@ exports.getMeals = functions.https.onRequest(async (req, res) => {
             }
         }
 
-        console.log(`Fetching meals for ${docId} from NEIS API...`);
+        logger.info(`Fetching meals for ${docId} from NEIS API...`);
 
         // 2. NEIS API에서 한 달 치 데이터 가져오기
         const fromDate = `${year}${paddedMonth}01`;
@@ -88,7 +83,7 @@ exports.getMeals = functions.https.onRequest(async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Meal API error:', error);
+        logger.error('Meal API error:', error);
         res.status(500).json({
             success: false,
             error: error.message
