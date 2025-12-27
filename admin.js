@@ -255,7 +255,7 @@ function updateDisabledDatesList() {
     disabledDates.forEach(dateStr => {
         const tag = document.createElement('span');
         tag.className = 'date-tag disabled';
-        tag.innerHTML = `<i class="fas fa-times"></i> \${formatDisplayDate(dateStr)}`;
+        tag.innerHTML = `<i class="fas fa-times"></i> ${formatDisplayDate(dateStr)}`;
         tag.querySelector('i').onclick = (e) => {
             e.stopPropagation();
             toggleDate(dateStr);
@@ -269,11 +269,11 @@ function formatDate(date) {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
-    return `\${y}\${m}\${d}`;
+    return `${y}${m}${d}`;
 }
 
 function formatDisplayDate(dateStr) {
-    return `\${dateStr.substring(4, 6)}/\${dateStr.substring(6, 8)}`;
+    return `${dateStr.substring(4, 6)}/${dateStr.substring(6, 8)}`;
 }
 
 function showStatus(msg, type) {
