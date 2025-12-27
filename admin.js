@@ -146,17 +146,25 @@ saveSettingsBtn.onclick = saveSettings;
 
 // Calendar Logic
 async function renderCalendar() {
+    if (!window.holidayAPI) {
+        console.error("Holiday API not found");
+        return;
+    }
+
     const year = currentViewDate.getFullYear();
     const month = currentViewDate.getMonth();
 
     currentMonthEl.textContent = `${year}년 ${month + 1}월`;
-    adminCalendarEl.innerHTML = '';
+    adminCalendarEl.innerHTML = '<div class="loading-spinner"></div>';
 
     const firstDay = new Date(year, month, 1).getDay();
     const totalDays = new Date(year, month + 1, 0).getDate();
+    const now = new Date(); // KST handled loosely here for 'today' marker
 
     // Fetch meals for current month to show markers
     await fetchMonthlyMeals(year, month + 1);
+
+    adminCalendarEl.innerHTML = '';
 
     // Empty cells
     for (let i = 0; i < firstDay; i++) {
@@ -170,12 +178,15 @@ async function renderCalendar() {
         const date = new Date(year, month, i);
         const dateStr = formatDate(date);
         const dayOfWeek = date.getDay();
+        const isToday = i === now.getDate() && month === now.getMonth() && year === now.getFullYear();
+
         const holiday = window.holidayAPI.isHoliday(date);
         const holidayName = window.holidayAPI.getHolidayName(date);
         const hasMealData = !!(mealCache[`${year}${String(month + 1).padStart(2, '0')}`]?.[dateStr]);
 
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
+        if (isToday) dayEl.classList.add('today');
         if (holiday) dayEl.classList.add('holiday');
         else if (dayOfWeek === 0) dayEl.classList.add('sun');
         else if (dayOfWeek === 6) dayEl.classList.add('sat');
