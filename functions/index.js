@@ -70,6 +70,31 @@ exports.dailyMealNotification = onSchedule({
         return;
     }
 
+    // 오늘 날짜 문자열 생성 (YYYYMMDD)
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    const parts = formatter.formatToParts(now);
+    const dateStr = `${parts.find(p => p.type === 'year').value}${parts.find(p => p.type === 'month').value}${parts.find(p => p.type === 'day').value}`;
+
+    // Firestore에서 알림 중지 날짜 확인
+    try {
+        const configDoc = await db.collection('admin_config').doc('notifications').get();
+        if (configDoc.exists) {
+            const disabledDates = configDoc.data().disabledDates || [];
+            if (disabledDates.includes(dateStr)) {
+                logger.info(`Notification for ${dateStr} is disabled by admin.`);
+                return;
+            }
+        }
+    } catch (error) {
+        logger.error('Error checking disabled dates in Firestore:', error);
+    }
+
     // Firestore에서 토큰 조회
     const usersSnapshot = await db.collection('users').get();
     const tokens = [];
