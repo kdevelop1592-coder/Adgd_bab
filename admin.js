@@ -37,6 +37,7 @@ const statusMsg = document.getElementById('status-message');
 let currentUser = null;
 let currentViewDate = new Date();
 let disabledDates = []; // Array of YYYYMMDD strings
+const mealCache = {}; // Global cache for meals
 
 // Auth State Observer
 onAuthStateChanged(auth, async (user) => {
@@ -46,6 +47,7 @@ onAuthStateChanged(auth, async (user) => {
         loginSection.style.display = 'none';
         dashboardSection.style.display = 'block';
 
+        await window.holidayAPI.init();
         await loadSettings();
         renderCalendar();
     } else if (user) {
@@ -70,6 +72,39 @@ loginBtn.onclick = async () => {
 };
 
 logoutBtn.onclick = () => signOut(auth);
+
+// Meal API Logic (Shared with script.js)
+async function fetchMonthlyMeals(year, month) {
+    const monthKey = `${year}${String(month).padStart(2, '0')}`;
+    if (mealCache[monthKey]) return mealCache[monthKey];
+
+    const url = `https://us-central1-adgd-bab.cloudfunctions.net/getMeals?year=${year}&month=${month}`;
+    try {
+        const response = await fetch(url);
+        const json = await response.json();
+        if (json.success && json.data) {
+            mealCache[monthKey] = json.data;
+            return json.data;
+        }
+        return {};
+    } catch (e) {
+        console.error('Failed to fetch monthly meals:', e);
+        return {};
+    }
+}
+
+async function fetchMeal(dateStr) {
+    const year = dateStr.substring(0, 4);
+    const month = parseInt(dateStr.substring(4, 6), 10);
+    const monthKey = `${year}${String(month).padStart(2, '0')}`;
+
+    if (!mealCache[monthKey]) {
+        await fetchMonthlyMeals(year, month);
+    }
+
+    const monthlyData = mealCache[monthKey] || {};
+    return monthlyData[dateStr] || null;
+}
 
 // Settings Management
 async function loadSettings() {
@@ -110,7 +145,7 @@ async function saveSettings() {
 saveSettingsBtn.onclick = saveSettings;
 
 // Calendar Logic
-function renderCalendar() {
+async function renderCalendar() {
     const year = currentViewDate.getFullYear();
     const month = currentViewDate.getMonth();
 
@@ -119,6 +154,9 @@ function renderCalendar() {
 
     const firstDay = new Date(year, month, 1).getDay();
     const totalDays = new Date(year, month + 1, 0).getDate();
+
+    // Fetch meals for current month to show markers
+    await fetchMonthlyMeals(year, month + 1);
 
     // Empty cells
     for (let i = 0; i < firstDay; i++) {
@@ -129,13 +167,34 @@ function renderCalendar() {
 
     // Day cells
     for (let i = 1; i <= totalDays; i++) {
+        const date = new Date(year, month, i);
+        const dateStr = formatDate(date);
+        const dayOfWeek = date.getDay();
+        const holiday = window.holidayAPI.isHoliday(date);
+        const holidayName = window.holidayAPI.getHolidayName(date);
+        const hasMealData = !!(mealCache[`${year}${String(month + 1).padStart(2, '0')}`]?.[dateStr]);
+
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
-        dayEl.textContent = i;
+        if (holiday) dayEl.classList.add('holiday');
+        else if (dayOfWeek === 0) dayEl.classList.add('sun');
+        else if (dayOfWeek === 6) dayEl.classList.add('sat');
 
-        const dateStr = formatDate(new Date(year, month, i));
+        if (hasMealData) dayEl.classList.add('has-meal');
         if (disabledDates.includes(dateStr)) {
             dayEl.classList.add('disabled-date');
+        }
+
+        const spanNum = document.createElement('span');
+        spanNum.className = 'day-number';
+        spanNum.textContent = i;
+        dayEl.appendChild(spanNum);
+
+        if (holidayName) {
+            const spanHoliday = document.createElement('span');
+            spanHoliday.className = 'holiday-label';
+            spanHoliday.textContent = holidayName;
+            dayEl.appendChild(spanHoliday);
         }
 
         dayEl.onclick = () => toggleDate(dateStr);
