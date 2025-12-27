@@ -159,10 +159,10 @@ async function renderCalendar() {
 
     const firstDay = new Date(year, month, 1).getDay();
     const totalDays = new Date(year, month + 1, 0).getDate();
-    const now = new Date(); // KST handled loosely here for 'today' marker
+    const now = new Date();
 
-    // Fetch meals for current month to show markers
-    await fetchMonthlyMeals(year, month + 1);
+    // Fetch meals for current month
+    const monthlyData = await fetchMonthlyMeals(year, month + 1);
 
     adminCalendarEl.innerHTML = '';
 
@@ -182,7 +182,7 @@ async function renderCalendar() {
 
         const holiday = window.holidayAPI.isHoliday(date);
         const holidayName = window.holidayAPI.getHolidayName(date);
-        const hasMealData = !!(mealCache[`${year}${String(month + 1).padStart(2, '0')}`]?.[dateStr]);
+        const hasMealData = !!(monthlyData && monthlyData[dateStr]);
 
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
