@@ -41,19 +41,24 @@ const mealCache = {}; // Global cache for meals
 
 // Auth State Observer
 onAuthStateChanged(auth, async (user) => {
-    if (user && user.email === "kdevelop1592@gmail.com") {
+    if (user) {
         currentUser = user;
         userInfoEl.textContent = `${user.displayName} (${user.email})`;
-        loginSection.style.display = 'none';
-        dashboardSection.style.display = 'block';
 
-        await window.holidayAPI.init();
-        await loadSettings();
-        renderCalendar();
-    } else if (user) {
-        // Not an admin
-        alert("관리자 권한이 없습니다. (" + user.email + ")");
-        signOut(auth);
+        // 권한 확인: Firestore에서 설정을 읽어올 수 있는지 시도합니다.
+        // 규칙(Rules)에 의해 관리자가 아니면 여기서 에러가 발생합니다.
+        const isAdmin = await loadSettings();
+
+        if (isAdmin) {
+            loginSection.style.display = 'none';
+            dashboardSection.style.display = 'block';
+            await window.holidayAPI.init();
+            renderCalendar();
+        } else {
+            // 관리자가 아닌 경우 (loadSettings에서 false 반환됨)
+            alert("관리자 권한이 없습니다. (" + user.email + ")");
+            signOut(auth);
+        }
     } else {
         currentUser = null;
         loginSection.style.display = 'block';
@@ -115,8 +120,14 @@ async function loadSettings() {
             disabledDates = docSnap.data().disabledDates || [];
         }
         updateDisabledDatesList();
+        return true; // 성공적으로 읽어옴 = 관리자임
     } catch (error) {
         console.error("Failed to load settings:", error);
+        // 파이어베이스 보안 규칙에 의해 거절된 경우
+        if (error.code === 'permission-denied') {
+            return false;
+        }
+        return false;
     }
 }
 
