@@ -21,7 +21,7 @@ const SD_SCHUL_CODE = '8750186'; // 안동중앙고등학교 정정 (8750186)
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
-const db = getFirestore(app, "adgd-bab");
+const db = getFirestore(app);
 
 // --- UI Elements ---
 const notificationBtn = document.getElementById('enable-notifications');
@@ -156,8 +156,21 @@ async function loadTodayMeal() {
     todayDateEl.textContent = `${currentDay.getMonth() + 1}월 ${currentDay.getDate()}일 (${getDayName(currentDay)})`;
 
     todayMealInfoEl.innerHTML = '<span class="loading-spinner"></span> 정보를 불러오는 중...';
-    const menu = await fetchMeal(dateStr);
-    todayMealInfoEl.innerHTML = menu ? menu.replace(/\n/g, '<br>') : '오늘은 급식 정보가 없습니다. 🏖️';
+    const meal = await fetchMeal(dateStr);
+    
+    if (meal) {
+        const menu = (typeof meal === 'object') ? meal.menu : meal;
+        const imageUrl = (typeof meal === 'object') ? meal.imageUrl : null;
+        
+        let html = '';
+        if (imageUrl) {
+            html += `<div class="meal-image-container"><img src="${imageUrl}" class="meal-image" alt="오늘의 급식 사진" onclick="window.open('${imageUrl}', '_blank')"></div>`;
+        }
+        html += `<div class="meal-text">${menu.replace(/\n/g, '<br>')}</div>`;
+        todayMealInfoEl.innerHTML = html;
+    } else {
+        todayMealInfoEl.innerHTML = '오늘은 급식 정보가 없습니다. 🏖️';
+    }
 }
 
 // Day Navigation
@@ -189,12 +202,14 @@ async function loadWeeklyMeal() {
         const current = new Date(startOfWeek);
         current.setDate(startOfWeek.getDate() + i);
         const dateStr = formatDate(current);
-        const menu = await fetchMeal(dateStr);
+        const meal = await fetchMeal(dateStr);
+        
+        const menu = meal ? ((typeof meal === 'object') ? meal.menu : meal) : '정보 없음';
 
         html += `
             <div class="weekly-item">
                 <h4>${current.getMonth() + 1}/${current.getDate()} (${getDayName(current)})</h4>
-                <p>${menu ? menu.replace(/\n/g, ', ') : '정보 없음'}</p>
+                <p>${menu.replace(/\n/g, ', ')}</p>
             </div>
         `;
     }
@@ -263,8 +278,8 @@ async function checkDataStatus(year, month) {
     for (let i = 1; i <= 7; i++) {
         const checkDate = new Date(year, month, i);
         const dateStr = formatDate(checkDate);
-        const menu = await fetchMeal(dateStr);
-        if (menu) {
+        const meal = await fetchMeal(dateStr);
+        if (meal) {
             hasData = true;
             break;
         }
@@ -321,8 +336,20 @@ window.showMealDetail = async function (day) {
     modalMealInfoEl.innerHTML = '<span class="loading-spinner"></span> 정보를 불러오는 중...';
     mealModal.classList.add('active');
 
-    const menu = await fetchMeal(dateStr);
-    modalMealInfoEl.innerHTML = menu ? menu.replace(/\n/g, '<br>') : '급식 정보가 없습니다. 🏖️';
+    const meal = await fetchMeal(dateStr);
+    if (meal) {
+        const menu = (typeof meal === 'object') ? meal.menu : meal;
+        const imageUrl = (typeof meal === 'object') ? meal.imageUrl : null;
+        
+        let html = '';
+        if (imageUrl) {
+            html += `<div class="meal-image-container large"><img src="${imageUrl}" class="meal-image" alt="급식 사진" onclick="window.open('${imageUrl}', '_blank')"></div>`;
+        }
+        html += `<div class="meal-text">${menu.replace(/\n/g, '<br>')}</div>`;
+        modalMealInfoEl.innerHTML = html;
+    } else {
+        modalMealInfoEl.innerHTML = '급식 정보가 없습니다. 🏖️';
+    }
 }
 
 closeModal.onclick = () => mealModal.classList.remove('active');

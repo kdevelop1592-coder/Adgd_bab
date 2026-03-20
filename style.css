@@ -450,3 +450,35 @@ body {
     padding-bottom: 10px;
     margin-bottom: 15px;
 }
+
+/* Meal Photo Styles */
+.meal-image-container {
+    width: 100%;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #f0f0f0;
+}
+
+.meal-image-container.large {
+    max-height: 300px;
+}
+
+.meal-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+.meal-image:hover {
+    transform: scale(1.02);
+}
+
+.meal-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-main);
+}
