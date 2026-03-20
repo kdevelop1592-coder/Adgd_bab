@@ -4,13 +4,13 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-comp
 
 // TODO: Replace with your project's Firebase Config
 const firebaseConfig = {
-  apiKey: "AIzaSyD-6VZb7DYLBLwungZRvhfNLS9T5-RXtrM",
-  authDomain: "adgd-bab.firebaseapp.com",
-  projectId: "adgd-bab",
-  storageBucket: "adgd-bab.firebasestorage.app",
-  messagingSenderId: "445040265724",
-  appId: "1:445040265724:web:e971afd0ae1533a2d24a79",
-  measurementId: "G-RND2J0EBBN"
+  apiKey: "AIzaSyDl6M8OR7b19jd8P4NvBwSNNe0LvUPHjs8",
+  authDomain: "adgd-bab-test.firebaseapp.com",
+  projectId: "adgd-bab-test",
+  storageBucket: "adgd-bab-test.firebasestorage.app",
+  messagingSenderId: "152340406464",
+  appId: "1:152340406464:web:038f9a29bc0b98dd4a0d25",
+  measurementId: "G-WW41J0SJWW"
 };
 
 firebase.initializeApp(firebaseConfig);

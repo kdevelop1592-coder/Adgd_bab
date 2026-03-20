@@ -13,7 +13,7 @@ exports.getMeals = onRequest({
 }, async (req, res) => {
     try {
         const NEIS_API_KEY = process.env.NEIS_API_KEY;
-        const db = getFirestore('adgd-bab');
+        const db = getFirestore();
         const year = req.query.year;
         const month = req.query.month; // 1 ~ 12 (문자열)
 

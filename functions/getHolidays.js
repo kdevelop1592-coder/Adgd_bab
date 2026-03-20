@@ -13,7 +13,7 @@ exports.getHolidays = onRequest({
             throw new Error('HOLIDAY_API_KEY secret not configured');
         }
 
-        const db = getFirestore('adgd-bab');
+        const db = getFirestore();
         const year = req.query.year || new Date().getFullYear().toString();
 
         // 1. Firestore 캐시 확인

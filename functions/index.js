@@ -8,7 +8,7 @@ const { getMeals } = require("./getMeals.js");
 
 initializeApp();
 
-const db = getFirestore('adgd-bab');
+const db = getFirestore();
 const messaging = getMessaging();
 
 exports.getHolidays = getHolidays;

@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "adgd-bab"
+    "test": "adgd-bab-test",
+    "prod": "adgd-bab"
   }
 }
