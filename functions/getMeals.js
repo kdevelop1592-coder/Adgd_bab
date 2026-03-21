@@ -19,22 +19,39 @@ async function fetchMealPhotos(year, month) {
     const url = `${SCHOOL_MEAL_URL}&viewType=tbl&schYy=${year}&schMm=${paddedMonth}`;
 
     try {
-        const response = await fetch(url);
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Referer': 'https://school.gyo6.net/adgd/main.do',
+            'Connection': 'keep-alive'
+        };
+
+        // 1. 세션 쿠키 획득 (메인 페이지 방문)
+        const mainResponse = await fetch('https://school.gyo6.net/adgd/main.do', { headers });
+        const setCookies = mainResponse.headers.get('set-cookie');
+        const cookies = setCookies ? setCookies.split(',').map(c => c.split(';')[0]).join('; ') : '';
+
+        // 2. 쿠키와 함께 급식 페이지 요청
+        const response = await fetch(url, {
+            headers: {
+                ...headers,
+                'Cookie': cookies
+            }
+        });
         const html = await response.text();
         const $ = cheerio.load(html);
+        const imagesMap = {};
 
-        // 달력 테이블의 각 날짜 칸(td)을 순회
-        $('table.jtbl.calendar td').each((_, td) => {
+        // 달력 형식(tbl)에서의 선택자: td.selectDay, .meal_tab_icon img
+        $('td.selectDay').each((_, td) => {
             const $td = $(td);
-            // 날짜 숫자 추출 (예: "15")
-            const dayText = $td.find('span.day').text().trim();
-            if (!dayText) return;
+            // 날짜 추출 (id="20260303")
+            const dateStr = $td.attr('id');
+            if (!dateStr || !dateStr.startsWith(year)) return;
 
-            const day = dayText.padStart(2, '0');
-            const dateStr = `${year}${paddedMonth}${day}`;
-
-            // 이미지 태그 찾기 (class="img" 우선, 없으면 img 태그 전체)
-            const $img = $td.find('img.img').first();
+            // 이미지 태그 찾기 (.meal_tab_icon img)
+            const $img = $td.find('.meal_tab_icon img').first();
             if ($img.length > 0) {
                 let imgSrc = $img.attr('src');
                 if (imgSrc && imgSrc.startsWith('/')) {
@@ -45,6 +62,7 @@ async function fetchMealPhotos(year, month) {
         });
 
         logger.info(`Successfully crawled ${Object.keys(imagesMap).length} photos for ${year}-${paddedMonth}`);
+        return imagesMap;
     } catch (error) {
         logger.error('Error crawling meal photos:', error);
     }
@@ -61,6 +79,7 @@ exports.getMeals = onRequest({
         const db = getFirestore();
         const year = req.query.year;
         const month = req.query.month; // 1 ~ 12 (문자열)
+        const refresh = req.query.refresh === 'true'; // 캐시 무시 여부
 
         if (!year || !month) {
             res.status(400).json({ error: 'Missing year or month parameters' });
@@ -82,7 +101,7 @@ exports.getMeals = onRequest({
             // 단, imageUrl 필드가 없는 구형 데이터인 경우 새로고침 시도
             const hasImages = Object.values(cacheData.data || {}).some(meal => typeof meal === 'object' && meal.imageUrl);
 
-            if (cacheData.timestamp && (now - cacheData.timestamp < ONE_DAY) && hasImages) {
+            if (cacheData.timestamp && (now - cacheData.timestamp < ONE_DAY) && hasImages && !refresh) {
                 logger.info(`Serving meals from cache for ${docId}`);
                 res.status(200).json({
                     success: true,

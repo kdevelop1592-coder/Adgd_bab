@@ -14,9 +14,8 @@ const firebaseConfig = {
   measurementId: "G-WW41J0SJWW"
 };
 
-// --- School Configuration ---
 const ATPT_OFCDC_SC_CODE = 'R10';
-const SD_SCHUL_CODE = '8750186'; // 안동중앙고등학교 정정 (8750186)
+const SD_SCHUL_CODE = '8750186'; // 안동중앙고등학교 (식당 공유)
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
