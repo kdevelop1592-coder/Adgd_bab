@@ -100,8 +100,9 @@ exports.getMeals = onRequest({
             // 캐시가 있고 24시간 이내라면 반환
             // 단, imageUrl 필드가 없는 구형 데이터인 경우 새로고침 시도
             const hasImages = Object.values(cacheData.data || {}).some(meal => typeof meal === 'object' && meal.imageUrl);
+            const hasKcal = Object.values(cacheData.data || {}).some(meal => typeof meal === 'object' && meal.kcal);
 
-            if (cacheData.timestamp && (now - cacheData.timestamp < ONE_DAY) && hasImages && !refresh) {
+            if (cacheData.timestamp && (now - cacheData.timestamp < ONE_DAY) && hasImages && hasKcal && !refresh) {
                 logger.info(`Serving meals from cache for ${docId}`);
                 res.status(200).json({
                     success: true,
@@ -135,10 +136,12 @@ exports.getMeals = onRequest({
                 const date = row.MLSV_YMD; // YYYYMMDD
                 if (row.MMEAL_SC_CODE === "2") {
                     const menu = row.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
+                    const kcal = row.CAL_INFO || null;
                     // 메뉴 텍스트와 이미지 URL을 객체로 통합
                     mealsMap[date] = {
                         menu: menu,
-                        imageUrl: photosMap[date] || null
+                        imageUrl: photosMap[date] || null,
+                        kcal: kcal
                     };
                 }
             });

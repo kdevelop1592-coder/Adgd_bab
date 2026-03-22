@@ -606,3 +606,16 @@ body {
     line-height: 1.6;
     color: var(--text-main);
 }
+
+.calorie-info {
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.weekly-calorie {
+    font-size: 0.85rem !important;
+    color: var(--text-sub) !important;
+    margin-top: 6px !important;
+}

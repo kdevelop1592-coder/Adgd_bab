@@ -46,8 +46,9 @@ async function getTodaysMeal() {
         if (data.mealServiceDietInfo && data.mealServiceDietInfo[1] && data.mealServiceDietInfo[1].row) {
             const meals = data.mealServiceDietInfo[1].row;
             const lunch = meals.find(m => m.MMEAL_SC_CODE === "2") || meals[0];
-            const menu = lunch.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '');
-            return menu.trim();
+            const menu = lunch.DDISH_NM.replace(/<br\/>/g, '\n').replace(/\([0-9.]+\)/g, '').trim();
+            const kcal = lunch.CAL_INFO;
+            return kcal ? `${menu}\n\n[총 ${kcal}]` : menu;
         }
         return null;
     } catch (error) {

@@ -188,12 +188,16 @@ async function loadTodayMeal() {
     if (meal) {
         const menu = (typeof meal === 'object') ? meal.menu : meal;
         const imageUrl = (typeof meal === 'object') ? meal.imageUrl : null;
+        const kcal = (typeof meal === 'object' && meal.kcal) ? meal.kcal : null;
         
         let html = '';
         if (imageUrl) {
             html += `<div class="meal-image-container"><img src="${imageUrl}" class="meal-image" alt="오늘의 급식 사진" onclick="window.open('${imageUrl}', '_blank')"></div>`;
         }
         html += `<div class="meal-text">${menu.replace(/\n/g, '<br>')}</div>`;
+        if (kcal) {
+            html += `<div class="calorie-info"><i class="fas fa-fire-alt"></i> 총 ${kcal}</div>`;
+        }
         todayMealInfoEl.innerHTML = html;
     } else {
         todayMealInfoEl.innerHTML = '오늘은 급식 정보가 없습니다. 🏖️';
@@ -232,11 +236,15 @@ async function loadWeeklyMeal() {
         const meal = await fetchMeal(dateStr);
         
         const menu = meal ? ((typeof meal === 'object') ? meal.menu : meal) : '정보 없음';
+        const kcal = meal ? ((typeof meal === 'object' && meal.kcal) ? meal.kcal : '') : '';
+
+        let kcalHtml = kcal ? `<p class="weekly-calorie"><i class="fas fa-fire-alt"></i> 총 ${kcal}</p>` : '';
 
         html += `
             <div class="weekly-item">
                 <h4>${current.getMonth() + 1}/${current.getDate()} (${getDayName(current)})</h4>
                 <p>${menu.replace(/\n/g, ', ')}</p>
+                ${kcalHtml}
             </div>
         `;
     }
@@ -365,14 +373,16 @@ window.showMealDetail = async function (day) {
 
     const meal = await fetchMeal(dateStr);
     if (meal) {
-        const menu = (typeof meal === 'object') ? meal.menu : meal;
-        const imageUrl = (typeof meal === 'object') ? meal.imageUrl : null;
+        const kcal = (typeof meal === 'object' && meal.kcal) ? meal.kcal : null;
         
         let html = '';
         if (imageUrl) {
             html += `<div class="meal-image-container large"><img src="${imageUrl}" class="meal-image" alt="급식 사진" onclick="window.open('${imageUrl}', '_blank')"></div>`;
         }
         html += `<div class="meal-text">${menu.replace(/\n/g, '<br>')}</div>`;
+        if (kcal) {
+            html += `<div class="calorie-info"><i class="fas fa-fire-alt"></i> 총 ${kcal}</div>`;
+        }
         modalMealInfoEl.innerHTML = html;
     } else {
         modalMealInfoEl.innerHTML = '급식 정보가 없습니다. 🏖️';
@@ -389,7 +399,7 @@ window.onclick = (event) => {
     await window.holidayAPI.init();
     loadTodayMeal();
     loadMonthlyMeal();
-    checkNotificationState();
+    // checkNotificationState(); // SW 등록 후 실행하도록 아래로 이동
 })();
 
 
@@ -561,9 +571,12 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./firebase-messaging-sw.js')
             .then(registration => {
                 console.log('SW registered:', registration.scope);
+                // 서비스 워커 등록 성공 후 알림 상태 확인
+                checkNotificationState();
             })
             .catch(err => {
                 console.log('SW failed:', err);
+                checkNotificationState(); // 실패하더라도 기본 상태 확인 시도
             });
     });
 }
