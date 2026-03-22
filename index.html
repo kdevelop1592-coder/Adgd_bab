@@ -33,7 +33,12 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1><i class="fas fa-utensils"></i> 경덕중학교 오늘의 급식</h1>
+            <div class="header-title-row">
+                <h1><i class="fas fa-utensils"></i> 경덕중학교 오늘의 급식</h1>
+                <button id="theme-toggle" class="theme-btn" aria-label="테마 변경">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
             <p>매일 아침 7:30, 따뜻한 급식 소식을 전해드려요.</p>
         </header>
 
@@ -86,16 +91,20 @@
 
             <div class="card notification-card" id="notification-section">
                 <h3>알림 설정</h3>
-                <p>매일 아침 7:30 급식 알림을 받으시겠습니까?</p>
-                <button id="enable-notifications" class="primary-btn">
-                    <i class="fas fa-bell"></i> 알림 켜기
-                </button>
-                <p id="status-message" class="status-message"></p>
+                <div class="notification-row">
+                    <div class="notification-text">
+                        <p>매일 아침 7:30 급식 알림을 받으시겠습니까?</p>
+                        <span id="status-message" class="status-message"></span>
+                    </div>
+                    <button id="enable-notifications" class="toggle-switch" aria-label="알림 토글">
+                        <div class="toggle-knob"></div>
+                    </button>
+                </div>
             </div>
 
             <div class="card install-card" id="install-section" style="display: none;">
                 <h3>앱 설치</h3>
-                <button id="install-btn" class="secondary-btn">
+                <button id="install-btn" class="primary-btn">
                     <i class="fas fa-download"></i> 홈 화면에 추가
                 </button>
             </div>

@@ -42,6 +42,34 @@ const modalDateEl = document.getElementById('modal-date');
 const modalMealInfoEl = document.getElementById('modal-meal-info');
 const prevDayBtn = document.getElementById('prev-day');
 const nextDayBtn = document.getElementById('next-day');
+const themeToggleBtn = document.getElementById('theme-toggle');
+const themeIcon = themeToggleBtn.querySelector('i');
+
+// --- Theme Logic ---
+const currentTheme = localStorage.getItem('theme') || 'light';
+if (currentTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+    if(themeIcon) {
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+    }
+}
+
+themeToggleBtn.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    const isDark = document.documentElement.classList.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    
+    if(themeIcon) {
+        if (isDark) {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+});
 
 // Help function to get current date in KST
 function getKSTDate() {
@@ -403,12 +431,10 @@ async function checkNotificationState() {
 
 function setNotificationUI(isEnabled) {
     if (isEnabled) {
-        notificationBtn.innerHTML = '<i class="fas fa-bell-slash"></i> 알림 끄기';
-        notificationBtn.className = 'danger-btn';
+        notificationBtn.classList.add('active');
         notificationBtn.onclick = unsubscribeFromNotifications;
     } else {
-        notificationBtn.innerHTML = '<i class="fas fa-bell"></i> 알림 켜기';
-        notificationBtn.className = 'primary-btn';
+        notificationBtn.classList.remove('active');
         notificationBtn.onclick = requestPermissionAndSaveToken;
     }
     notificationBtn.style.opacity = '1';
@@ -418,7 +444,6 @@ function setNotificationUI(isEnabled) {
 async function requestPermissionAndSaveToken() {
     try {
         notificationBtn.disabled = true;
-        notificationBtn.innerHTML = '<span class="loading-spinner"></span> 처리 중...';
 
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
@@ -455,7 +480,6 @@ async function unsubscribeFromNotifications() {
         if (!confirm('정말로 급식 알림을 끄시겠습니까?')) return;
 
         notificationBtn.disabled = true;
-        notificationBtn.innerHTML = '<span class="loading-spinner"></span> 처리 중...';
 
         const registration = await navigator.serviceWorker.getRegistration();
         const token = await getToken(messaging, {
