@@ -1,4 +1,3 @@
-// Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
 import { getMessaging, getToken, onMessage, deleteToken } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 import { getFirestore, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
@@ -24,7 +23,10 @@ const SD_SCHUL_CODE = '8750186'; // 안동중앙고등학교 (식당 공유)
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
-const db = getFirestore(app);
+
+// 운영 서버(prod)의 경우 데이터베이스 명이 'adgd-bab'로 되어 있는 경우에 대응
+const db = getFirestore(app, ENV === 'prod' ? 'adgd-bab' : undefined);
+console.log(`[Debug] App initialized. ENV: ${ENV}, Database: ${ENV === 'prod' ? 'adgd-bab' : '(default)'}`);
 
 // --- UI Elements ---
 const notificationBtn = document.getElementById('enable-notifications');
@@ -48,6 +50,24 @@ const prevDayBtn = document.getElementById('prev-day');
 const nextDayBtn = document.getElementById('next-day');
 const themeToggleBtn = document.getElementById('theme-toggle');
 const themeIcon = themeToggleBtn.querySelector('i');
+let currentToken = null;
+let currentRegistration = null;
+let isProcessingNotification = false;
+
+// --- Debugging Helper ---
+const withTimeout = (promise, ms, name) => {
+    console.log(`[Debug] Starting ${name}...`);
+    return Promise.race([
+        promise.then(res => {
+            console.log(`[Debug] ${name} resolved.`);
+            return res;
+        }),
+        new Promise((_, reject) => setTimeout(() => {
+            console.error(`[Debug] ${name} timed out after ${ms}ms`);
+            reject(new Error(`${name} 요청 시간이 초과되었습니다.`));
+        }, ms))
+    ]);
+};
 
 // --- Theme Logic ---
 const currentTheme = localStorage.getItem('theme') || 'light';
@@ -375,6 +395,8 @@ window.showMealDetail = async function (day) {
 
     const meal = await fetchMeal(dateStr);
     if (meal) {
+        const menu = (typeof meal === 'object') ? meal.menu : meal;
+        const imageUrl = (typeof meal === 'object') ? meal.imageUrl : null;
         const kcal = (typeof meal === 'object' && meal.kcal) ? meal.kcal : null;
         
         let html = '';
@@ -427,69 +449,102 @@ async function checkNotificationState() {
             return;
         }
 
-        const registration = await navigator.serviceWorker.getRegistration();
-        const currentToken = await getToken(messaging, {
+        console.log('[Debug] Checking Service Worker...');
+        // 서비스 워커 등록 정보를 한 번만 가져와서 유지
+        if (!currentRegistration) {
+            currentRegistration = await navigator.serviceWorker.getRegistration();
+            console.log('[Debug] Registration found:', !!currentRegistration);
+        }
+        
+        if (!currentRegistration) {
+            console.warn('[Debug] No Service Worker registration found.');
+            setNotificationUI(false);
+            return;
+        }
+
+        console.log('[Debug] Fetching FCM token...');
+        currentToken = await getToken(messaging, {
             vapidKey: VAPID_KEY,
-            serviceWorkerRegistration: registration
-        }).catch(() => null);
+            serviceWorkerRegistration: currentRegistration
+        }).catch(err => {
+            console.error('[Debug] getToken error:', err);
+            return null;
+        });
+        console.log('[Debug] Current token:', currentToken ? 'exists' : 'null');
 
         if (currentToken) {
-            // 이미 토큰이 있음 -> 알림 켜진 상태
             setNotificationUI(true);
-            // 만약을 위해 서버에도 다시 한번 저장 (업데이트)
-            saveTokenToFirestore(currentToken);
+            // 캐시가 있더라도 서버 상태 확인을 위해 저장 시도 (백그라운드)
+            saveTokenToFirestore(currentToken).catch(e => console.error('[Debug] Background sync failed:', e));
         } else {
-            // 토큰 없음 -> 알림 꺼진 상태
             setNotificationUI(false);
         }
     } catch (error) {
         console.error('Check notification state error:', error);
+        setNotificationUI(false);
     }
 }
 
 function setNotificationUI(isEnabled) {
     if (isEnabled) {
         notificationBtn.classList.add('active');
-        notificationBtn.onclick = unsubscribeFromNotifications;
     } else {
         notificationBtn.classList.remove('active');
-        notificationBtn.onclick = requestPermissionAndSaveToken;
     }
-    notificationBtn.style.opacity = '1';
+    notificationBtn.classList.remove('loading');
     notificationBtn.disabled = false;
+    notificationBtn.style.opacity = '1';
+}
+
+async function handleNotificationToggle() {
+    if (isProcessingNotification) return;
+    
+    const isCurrentlyEnabled = notificationBtn.classList.contains('active');
+    
+    if (isCurrentlyEnabled) {
+        await unsubscribeFromNotifications();
+    } else {
+        await requestPermissionAndSaveToken();
+    }
 }
 
 async function requestPermissionAndSaveToken() {
     try {
+        isProcessingNotification = true;
+        notificationBtn.classList.add('loading');
         notificationBtn.disabled = true;
 
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             updateStatus('권한 허용됨. 토큰 발급 중...', 'loading');
 
-            const registration = await navigator.serviceWorker.getRegistration();
-            const token = await getToken(messaging, {
+            if (!currentRegistration) {
+                currentRegistration = await navigator.serviceWorker.getRegistration();
+            }
+
+            currentToken = await getToken(messaging, {
                 vapidKey: VAPID_KEY,
-                serviceWorkerRegistration: registration
+                serviceWorkerRegistration: currentRegistration
             });
 
-            if (token) {
-                updateStatus('토큰 발급 완료. 서버에 저장 중...', 'loading');
-                await saveTokenToFirestore(token);
+            if (currentToken) {
+                updateStatus('서버에 저장 중...', 'loading');
+                await withTimeout(saveTokenToFirestore(currentToken), 5000, 'saveTokenToFirestore');
                 updateStatus('알림 설정이 완료되었습니다! ✅', 'success');
                 setNotificationUI(true);
             } else {
-                updateStatus('토큰 발급 실패. 다시 시도해 주세요.', 'error');
-                setNotificationUI(false);
+                throw new Error('토큰 발급에 실패했습니다.');
             }
         } else {
             updateStatus('알림 권한이 거부되었습니다.', 'error');
             setNotificationUI(false);
         }
     } catch (error) {
-        console.error('Notification Error:', error);
+        console.error('Notification Subscription Error:', error);
         updateStatus('오류: ' + error.message, 'error');
         setNotificationUI(false);
+    } finally {
+        isProcessingNotification = false;
     }
 }
 
@@ -497,29 +552,37 @@ async function unsubscribeFromNotifications() {
     try {
         if (!confirm('정말로 급식 알림을 끄시겠습니까?')) return;
 
+        isProcessingNotification = true;
+        notificationBtn.classList.add('loading');
         notificationBtn.disabled = true;
 
-        const registration = await navigator.serviceWorker.getRegistration();
-        const token = await getToken(messaging, {
-            vapidKey: VAPID_KEY,
-            serviceWorkerRegistration: registration
-        });
+        // 이미 가지고 있는 토큰이 있으면 그것을 사용, 없으면 새로 시도
+        if (!currentToken && currentRegistration) {
+            currentToken = await getToken(messaging, {
+                vapidKey: VAPID_KEY,
+                serviceWorkerRegistration: currentRegistration
+            }).catch(() => null);
+        }
 
-        if (token) {
-            // 1. Firestore에서 삭제
-            await deleteDoc(doc(db, "users", token));
-            // 2. FCM 토큰 폐기
-            await deleteToken(messaging);
-
+        if (currentToken) {
+            console.log('[Debug] Deleting token from Firestore...');
+            await withTimeout(deleteDoc(doc(db, "users", currentToken)), 5000, 'deleteDoc');
+            console.log('[Debug] Deleting FCM token...');
+            await withTimeout(deleteToken(messaging), 5000, 'deleteToken');
+            currentToken = null;
             updateStatus('알림 서비스가 해지되었습니다. 🔕', 'success');
             setNotificationUI(false);
         } else {
+            // 토큰이 없더라도 UI는 끈 상태로 맞춤
             setNotificationUI(false);
         }
     } catch (error) {
         console.error('Unsubscribe Error:', error);
         updateStatus('알림 해지 중 오류가 발생했습니다.', 'error');
         notificationBtn.disabled = false;
+        notificationBtn.classList.remove('loading');
+    } finally {
+        isProcessingNotification = false;
     }
 }
 
@@ -532,9 +595,16 @@ async function saveTokenToFirestore(token) {
     }, { merge: true });
 }
 
+notificationBtn.onclick = handleNotificationToggle;
+
 function updateStatus(msg, type) {
     statusMsg.textContent = msg;
     statusMsg.className = 'status-message ' + type;
+    if (type === 'success') {
+        setTimeout(() => {
+            if (statusMsg.textContent === msg) statusMsg.textContent = '';
+        }, 3000);
+    }
 }
 
 // notificationBtn.addEventListener('click', requestPermissionAndSaveToken); // onClick으로 관리하도록 변경

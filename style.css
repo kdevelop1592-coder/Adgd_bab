@@ -502,6 +502,12 @@ body {
     transform: translateX(24px);
 }
 
+.toggle-switch.loading {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .status-message.success {
     color: #27ae60;
 }

@@ -31,7 +31,7 @@ const firebaseConfig = firebaseConfigs[ENV];
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app, ENV === 'prod' ? 'adgd-bab' : undefined);
 const provider = new GoogleAuthProvider();
 
 // UI Elements
