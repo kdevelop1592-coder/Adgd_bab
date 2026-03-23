@@ -8,7 +8,7 @@ const { getMeals } = require("./getMeals.js");
 
 initializeApp();
 
-const db = getFirestore();
+const db = getFirestore(process.env.GCLOUD_PROJECT === 'adgd-bab' ? 'adgd-bab' : undefined);
 const messaging = getMessaging();
 
 exports.getHolidays = getHolidays;

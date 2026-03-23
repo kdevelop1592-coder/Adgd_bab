@@ -4,14 +4,18 @@ import { getMessaging, getToken, onMessage, deleteToken } from "https://www.gsta
 import { getFirestore, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 // TODO: YOUR FIREBASE CONFIGURATION REPLACES THIS
+// --- Firebase Configuration ---
+const ENV = 'prod';
+const VAPID_KEY = "BP-wVz5j889jR_q--YLtDlicDyeGRkelnsVdl87lVu0Uv6ukgq2YC774E61v31IA2Cns4lcnu9h6mWz_OK4lgkY";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDl6M8OR7b19jd8P4NvBwSNNe0LvUPHjs8",
-  authDomain: "adgd-bab-test.firebaseapp.com",
-  projectId: "adgd-bab-test",
-  storageBucket: "adgd-bab-test.firebasestorage.app",
-  messagingSenderId: "152340406464",
-  appId: "1:152340406464:web:038f9a29bc0b98dd4a0d25",
-  measurementId: "G-WW41J0SJWW"
+  apiKey: "AIzaSyD-6VZb7DYLBLwungZRvhfNLS9T5-RXtrM",
+  authDomain: "adgd-bab.firebaseapp.com",
+  projectId: "adgd-bab",
+  storageBucket: "adgd-bab.firebasestorage.app",
+  messagingSenderId: "445040265724",
+  appId: "1:445040265724:web:e971afd0ae1533a2d24a79",
+  measurementId: "G-RND2J0EBBN"
 };
 
 const ATPT_OFCDC_SC_CODE = 'R10';
@@ -98,8 +102,6 @@ onMessage(messaging, (payload) => {
 });
 
 // VAPID Key ...
-const VAPID_KEY = "BP-wVz5j889jR_q--YLtDlicDyeGRkelnsVdl87lVu0Uv6ukgq2YC774E61v31IA2Cns4lcnu9h6mWz_OK4lgkY";
-
 // --- Tab Logic ---
 tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -133,7 +135,7 @@ async function fetchMonthlyMeals(year, month) {
         return mealCache[monthKey];
     }
 
-    const url = `https://us-central1-adgd-bab-test.cloudfunctions.net/getMeals?year=${year}&month=${month}`;
+    const url = `https://us-central1-${firebaseConfig.projectId}.cloudfunctions.net/getMeals?year=${year}&month=${month}`;
     try {
         const response = await fetch(url);
         const json = await response.json();
@@ -399,6 +401,12 @@ window.onclick = (event) => {
     await window.holidayAPI.init();
     loadTodayMeal();
     loadMonthlyMeal();
+    // v4.1: Meal photo filter & robust initialization fix
+    const debugEl = document.getElementById('debug-info');
+    if (debugEl) {
+        debugEl.textContent = `v4.1 | ${ENV} | ${firebaseConfig.projectId}`;
+    }
+    
     // checkNotificationState(); // SW 등록 후 실행하도록 아래로 이동
 })();
 
@@ -565,10 +573,11 @@ installBtn.addEventListener('click', async () => {
     }
 });
 
-// Service Worker Registration
+// Service Worker Registration with versioning
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./firebase-messaging-sw.js')
+        // v4.1: Meal photo filter & robust initialization fix
+        navigator.serviceWorker.register('./firebase-messaging-sw.js?v=4.1')
             .then(registration => {
                 console.log('SW registered:', registration.scope);
                 // 서비스 워커 등록 성공 후 알림 상태 확인

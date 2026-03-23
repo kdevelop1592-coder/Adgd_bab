@@ -1,0 +1,26 @@
+[debug] [2026-03-23T07:28:44.076Z] ----------------------------------------------------------------------
+[debug] [2026-03-23T07:28:44.080Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\An\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions --project prod --force
+[debug] [2026-03-23T07:28:44.080Z] CLI Version:   15.11.0
+[debug] [2026-03-23T07:28:44.080Z] Platform:      win32
+[debug] [2026-03-23T07:28:44.080Z] Node Version:  v22.21.0
+[debug] [2026-03-23T07:28:44.081Z] Time:          Mon Mar 23 2026 16:28:44 GMT+0900 (대한민국 표준시)
+[debug] [2026-03-23T07:28:44.081Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-23T07:28:44.083Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-03-23T07:28:46.184Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T07:28:46.184Z] > authorizing via signed-in user (kdevelop1592@gmail.com)
+[debug] [2026-03-23T07:28:46.184Z] [iam] checking project adgd-bab for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-03-23T07:28:46.185Z] Checked if tokens are valid: true, expires at: 1774252093061
+[debug] [2026-03-23T07:28:46.185Z] Checked if tokens are valid: true, expires at: 1774252093061
+[debug] [2026-03-23T07:28:46.185Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions [none]
+[debug] [2026-03-23T07:28:46.185Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions  x-goog-user-project=adgd-bab
+[debug] [2026-03-23T07:28:46.185Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-03-23T07:28:46.401Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: self-signed certificate in certificate chain
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-03-23T07:28:46.402Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[debug] [2026-03-23T07:28:46.422Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions 200
+[debug] [2026-03-23T07:28:46.422Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adgd-bab:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-03-23T07:28:46.423Z] Checked if tokens are valid: true, expires at: 1774252093061
+[debug] [2026-03-23T07:28:46.423Z] Checked if tokens are valid: true, expires at: 1774252093061
+[debug] [2026-03-23T07:28:46.423Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-03-23T07:28:46.423Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/adgd-bab/serviceAccounts/adgd-bab@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}

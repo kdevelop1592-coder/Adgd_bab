@@ -1,6 +1,12 @@
 const { onRequest } = require("firebase-functions/v2/https");
+const { initializeApp, getApps } = require("firebase-admin/app");
 const { getFirestore } = require('firebase-admin/firestore');
 const { logger } = require("firebase-functions");
+
+// Initialize Admin SDK once
+if (getApps().length === 0) {
+    initializeApp();
+}
 
 exports.getHolidays = onRequest({
     secrets: ["HOLIDAY_API_KEY"],
@@ -13,7 +19,7 @@ exports.getHolidays = onRequest({
             throw new Error('HOLIDAY_API_KEY secret not configured');
         }
 
-        const db = getFirestore();
+        const db = getFirestore(process.env.GCLOUD_PROJECT === 'adgd-bab' ? 'adgd-bab' : undefined);
         const year = req.query.year || new Date().getFullYear().toString();
 
         // 1. Firestore 캐시 확인

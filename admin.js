@@ -2,16 +2,31 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebas
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-// Firebase Configuration (Same as script.js)
-const firebaseConfig = {
-  apiKey: "AIzaSyDl6M8OR7b19jd8P4NvBwSNNe0LvUPHjs8",
-  authDomain: "adgd-bab-test.firebaseapp.com",
-  projectId: "adgd-bab-test",
-  storageBucket: "adgd-bab-test.firebasestorage.app",
-  messagingSenderId: "152340406464",
-  appId: "1:152340406464:web:038f9a29bc0b98dd4a0d25",
-  measurementId: "G-WW41J0SJWW"
+// --- Firebase Configuration ---
+const ENV = 'prod'; // 'test' 또는 'prod'
+
+const firebaseConfigs = {
+  test: {
+    apiKey: "AIzaSyDl6M8OR7b19jd8P4NvBwSNNe0LvUPHjs8",
+    authDomain: "adgd-bab-test.firebaseapp.com",
+    projectId: "adgd-bab-test",
+    storageBucket: "adgd-bab-test.firebasestorage.app",
+    messagingSenderId: "152340406464",
+    appId: "1:152340406464:web:038f9a29bc0b98dd4a0d25",
+    measurementId: "G-WW41J0SJWW"
+  },
+  prod: {
+    apiKey: "AIzaSyD-6VZb7DYLBLwungZRvhfNLS9T5-RXtrM",
+    authDomain: "adgd-bab.firebaseapp.com",
+    projectId: "adgd-bab",
+    storageBucket: "adgd-bab.firebasestorage.app",
+    messagingSenderId: "445040265724",
+    appId: "1:445040265724:web:e971afd0ae1533a2d24a79",
+    measurementId: "G-RND2J0EBBN"
+  }
 };
+
+const firebaseConfig = firebaseConfigs[ENV];
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -31,6 +46,7 @@ const prevMonthBtn = document.getElementById('prev-month');
 const nextMonthBtn = document.getElementById('next-month');
 const disabledDatesListEl = document.getElementById('disabled-dates-list');
 const saveSettingsBtn = document.getElementById('save-settings-btn');
+const refreshMealBtn = document.getElementById('refresh-meal-btn');
 const statusMsg = document.getElementById('status-message');
 
 // State
@@ -83,7 +99,7 @@ async function fetchMonthlyMeals(year, month) {
     const monthKey = `${year}${String(month).padStart(2, '0')}`;
     if (mealCache[monthKey]) return mealCache[monthKey];
 
-    const url = `https://us-central1-adgd-bab-test.cloudfunctions.net/getMeals?year=${year}&month=${month}`;
+    const url = `https://us-central1-${firebaseConfig.projectId}.cloudfunctions.net/getMeals?year=${year}&month=${month}`;
     try {
         const response = await fetch(url);
         const json = await response.json();
@@ -262,6 +278,41 @@ function updateDisabledDatesList() {
         };
         disabledDatesListEl.appendChild(tag);
     });
+}
+
+// --- Refresh Meal Data Logic ---
+if (refreshMealBtn) {
+    refreshMealBtn.onclick = async () => {
+        if (!confirm('이번 달 급식 데이터(사진 포함)를 학교 홈페이지에서 다시 가져오시겠습니까?\n(약 5~10초 정도 소요될 수 있습니다)')) return;
+
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+
+        refreshMealBtn.disabled = true;
+        showStatus('급식 정보를 새로고침 중입니다. 잠시만 기다려 주세요...', 'loading');
+
+        try {
+            const url = `https://us-central1-${firebaseConfig.projectId}.cloudfunctions.net/getMeals?year=${year}&month=${month}&refresh=true`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.success) {
+                showStatus('이번 달 급식 정보가 성공적으로 업데이트되었습니다! ✅', 'success');
+                // 캐시 초기화 후 로컬에서도 다시 불러올 수 있게 함
+                if (mealCache[`${year}${String(month).padStart(2, '0')}`]) {
+                    delete mealCache[`${year}${String(month).padStart(2, '0')}`];
+                }
+            } else {
+                showStatus('새로고침 실패: ' + (data.error || '알 수 없는 오류'), 'error');
+            }
+        } catch (e) {
+            console.error('Refresh error:', e);
+            showStatus('데이터 요청 중 오류가 발생했습니다.', 'error');
+        } finally {
+            refreshMealBtn.disabled = false;
+        }
+    };
 }
 
 // Helpers
